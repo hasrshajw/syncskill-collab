@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Page Not Found · SyncSkill</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        /* ----- global variables (merged) ----- */
+        :root {
+            --font-main: 'IBM Plex Sans', sans-serif;
+            --color-dark-teal: #002726;
+            --color-teal-hover: #004D4B;
+            --color-white: #ffffff;
+            --font-weight-medium: 500;
+            --header-height: 72px;
+
+            --font-xs: 0.75rem;
+            --font-sm: 0.875rem;
+            --font-base: 1rem;
+            --font-xl: 1.25rem;
+            --font-3xl: 1.875rem;
+            --font-4xl: 2.25rem;
+
+            --gray-ghost: #e3e8e6;
+            --text-muted: #5d6f6e;
+            --btn-green: #33C375;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f4f6f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: var(--header-height); /* space for fixed header */
+            overflow-x: hidden;
+        }
+
+        a, button, .nav-link, .auth-button, .mobile-nav-link, .mobile-auth-button, .menu-button {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        /* ========== NAVBAR ========== */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 100;
+            background-color: var(--color-white);
+            border-bottom: 1px solid transparent;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .header.scrolled {
+            border-bottom-color: #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            width: 90%;
+            margin: 0 auto;
+            max-width: 1280px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo {
+            width: 140px;
+            height: auto;
+            display: block;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links { display: flex; }
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-dark-teal);
+            text-decoration: none;
+            border-radius: 0;
+            transition: color 0.2s ease;
+            background: transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--color-teal-hover);
+            background: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-buttons {
+            display: none;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .auth-buttons { display: flex; }
+        }
+
+        .auth-button {
+            padding: 8px 24px;
+            font-weight: var(--font-weight-medium);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            border: 1px solid var(--color-dark-teal);
+            color: var(--color-dark-teal);
+            background: transparent;
+        }
+
+        .auth-button.submit {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        .auth-button.submit:hover {
+            background-color: var(--color-teal-hover);
+            border-color: var(--color-teal-hover);
+            color: var(--color-white);
+        }
+
+        .auth-button:not(.submit):hover {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        .menu-button {
+            display: flex;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f1f5f9;
+            cursor: pointer;
+            color: var(--color-dark-teal);
+            transition: background 0.1s;
+        }
+
+        @media (min-width: 768px) {
+            .menu-button { display: none; }
+        }
+
+        #mobileMenu {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            background: var(--color-white);
+            z-index: 90;
+            transform: translateY(-110%);
+            transition: transform 0.3s ease-in-out;
+            padding: 24px 5%;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #mobileMenu.active {
+            transform: translateY(0);
+        }
+
+        .mobile-nav-link {
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--color-dark-teal);
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .mobile-nav-link:hover {
+            color: var(--color-teal-hover);
+            background: transparent;
+        }
+
+        .mobile-auth-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .mobile-auth-button {
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid var(--color-dark-teal);
+            color: var(--color-dark-teal);
+            background: transparent;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .mobile-auth-button.submit {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        .mobile-auth-button.submit:hover {
+            background-color: var(--color-teal-hover);
+            border-color: var(--color-teal-hover);
+        }
+
+        .mobile-auth-button:not(.submit):hover {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        #menuOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+            z-index: 80;
+            display: none;
+        }
+
+        #menuOverlay.active {
+            display: block;
+        }
+
+        /* ========== MAIN 404 – full viewport height ========== */
+        .main-404 {
+            min-height: 100vh;           /* at least full screen */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container-404 {
+            position: relative;
+            max-width: 640px;
+            width: 100%;
+            padding: 40px 20px;
+            text-align: center;
+            color: #012726;
+        }
+
+        .big404 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 380px;
+            font-weight: 700;
+            letter-spacing: -12px;
+            color: #e3e8e6;
+            z-index: 0;
+            user-select: none;
+            pointer-events: none;
+            line-height: 1;
+        }
+
+        .content-404 {
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-404 h1 {
+            font-size: 34px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #002726;
+        }
+
+        .content-404 p {
+            font-size: 15px;
+            color: #5d6f6e;
+            margin-bottom: 30px;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-404 {
+            background: #33C375;
+            color: #012726;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-weight: 500;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 2px rgba(0,39,38,0.3);
+            transition: background 0.25s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-family: var(--font-main);
+        }
+
+        .btn-404:hover {
+            background: #2fb168;
+        }
+
+        @media (max-width: 768px) {
+            .big404 {
+                font-size: 220px;
+                letter-spacing: -6px;
+            }
+            .content-404 h1 {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .big404 {
+                font-size: 160px;
+            }
+            .content-404 h1 {
+                font-size: 24px;
+            }
+            .content-404 p {
+                font-size: 14px;
+            }
+            .btn-404 {
+                padding: 12px 24px;
+            }
+        }
+
+        /* ========== FOOTER ========== */
+        .footer-section {
+            width: 100%;
+            font-family: var(--font-main);
+        }
+
+        .upper-half {
+            background-color: #f4f6f5;
+            position: relative;
+            padding-top: 40px;
+            padding-bottom: 150px;
+        }
+
+        .lower-half {
+            background-color: #002726;
+            padding: 190px 40px 60px 40px;
+        }
+
+        .subscribe-card {
+            background: linear-gradient(135deg, #003d3b, #002726);
+            color: #ffffff;
+            border-radius: 24px;
+            padding: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 10px 40px rgba(0, 39, 38, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            width: 90%;
+            max-width: 1200px;
+            z-index: 10;
+        }
+
+        .subscribe-info { flex: 1; }
+
+        .subscribe-info h2 {
+            font-size: var(--font-4xl);
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .subscribe-info p {
+            font-size: var(--font-base);
+            color: #d1d5db;
+            line-height: 1.6;
+            max-width: 90%;
+        }
+
+        .subscribe-form-area { flex-basis: 45%; }
+
+        .subscribe-form-area label {
+            display: block;
+            font-size: var(--font-sm);
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .subscribe-form { display: flex; gap: 12px; }
+
+        .input-with-prefix {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0 20px;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .input-with-prefix .prefix {
+            color: #ffffff;
+            font-size: var(--font-base);
+            margin-right: 8px;
+            pointer-events: none;
+        }
+
+        .subscribe-form input[type="tel"] {
+            width: 100%;
+            background-color: transparent;
+            border: none;
+            color: #ffffff;
+            padding: 16px 0;
+            font-size: var(--font-base);
+            outline: none;
+            font-family: var(--font-main);
+        }
+
+        .subscribe-form input[type="tel"]::placeholder { color: #b3d1d0; }
+
+        .input-with-prefix:focus-within {
+            border-color: #33c375;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .subscribe-form button {
+            background-color: #33c375;
+            color: #002726;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: var(--font-base);
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: var(--font-main);
+            transition: background-color 0.3s ease;
+        }
+
+        .subscribe-form button:hover { background-color: #2da765; }
+
+        .form-disclaimer {
+            font-size: var(--font-xs);
+            color: #b3d1d0;
+            margin-top: 16px;
+        }
+
+        .form-disclaimer a { color: #b3d1d0; text-decoration: underline; }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo-area { display: flex; flex-direction: column; gap: 16px; }
+
+        .logo-tagline { font-size: var(--font-sm); color: #d1d5db; }
+
+        .footer-links-container { display: flex; gap: 120px; }
+
+        .footer-column h3 {
+            font-size: var(--font-base);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-column ul { list-style: none; }
+
+        .footer-column ul li { margin-bottom: 18px; }
+
+        .footer-column ul li a {
+            text-decoration: none;
+            color: #d1d5db;
+            font-size: var(--font-base);
+            transition: color 0.2s ease-in-out;
+        }
+
+        .footer-column ul li a:hover { color: #33c375; }
+
+        .footer-copyright-bar {
+            max-width: 1200px;
+            margin: 60px auto 0 auto;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #d1d5db;
+            font-size: var(--font-sm);
+        }
+
+        .copyright-links { display: flex; gap: 24px; }
+
+        .copyright-links a {
+            text-decoration: none;
+            color: #d1d5db;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .copyright-links a:hover { color: #33c375; }
+
+        /* responsive footer */
+        @media (max-width: 1024px) {
+            .subscribe-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 40px;
+            }
+            .subscribe-form-area {
+                width: 100%;
+                margin-top: 20px;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                gap: 50px;
+            }
+            .footer-links-container {
+                gap: 60px;
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .subscribe-info h2 { font-size: var(--font-3xl); }
+            .subscribe-form { flex-direction: column; }
+            .footer-links-container { justify-content: flex-start; }
+            .upper-half { padding-bottom: 240px; }
+            .lower-half {
+                padding-top: 340px;
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            .footer-copyright-bar {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            .copyright-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .copyright-links a {
+              font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <header class="header">
+        <div class="header-container">
+            <div class="nav-left">
+                <a href="/" aria-label="Home">
+                    <img class="logo" src="assets/syncskill-logo.svg" alt="SyncSkill Logo">
+                </a>
+                <div class="nav-links">
+                    <a class="nav-link" href="/upskill">Upskill your Team</a>
+                    <a class="nav-link" href="/about-us">About</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="menu-button" id="mobileMenuButton" aria-label="Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div class="auth-buttons">
+                    <a class="auth-button submit" href="/login">Login</a>
+                    <a class="auth-button" href="/apply">Apply as Mentor</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile drawer -->
+    <div id="mobileMenu">
+        <a href="/upskill" class="mobile-nav-link">Upskill your Team</a>
+        <a href="/about-us" class="mobile-nav-link">About</a>
+        <div class="mobile-auth-stack">
+            <a href="/login" class="mobile-auth-button submit">Login</a>
+            <a href="/apply" class="mobile-auth-button">Apply as Mentor</a>
+        </div>
+    </div>
+    <div id="menuOverlay"></div>
+
+    <!-- ===== MAIN 404 – now full viewport height ===== -->
+    <main class="main-404">
+        <div class="container-404">
+            <div class="big404">404</div>
+            <div class="content-404">
+                <h1>Page not found</h1>
+                <p>The page you are looking for doesn’t exist or has been moved.</p>
+                <a href="/">
+                    <button class="btn-404">Go to Home</button>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer-section">
+        <div class="upper-half">
+            <div class="subscribe-card">
+                <div class="subscribe-info">
+                    <h2>Need Assistance with Internship?</h2>
+                    <p>From technical guidance to admission queries, we're here to help you kickstart your engineering career. Request a callback today.</p>
+                </div>
+                <div class="subscribe-form-area">
+                    <label for="mobile">Request a callback</label>
+                    <form action="#" method="POST" class="subscribe-form" id="footerForm">
+                        <div class="input-with-prefix">
+                            <span class="prefix">+91</span>
+                            <input type="tel" id="mobile" name="mobile" placeholder="Enter your mobile number" required maxlength="10" pattern="\d{10}" autocomplete="off">
+                        </div>
+                        <button type="submit">Get a Call</button>
+                    </form>
+                    <p class="form-disclaimer">By requesting a call, you agree to our <a href="#">Privacy Policy</a>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lower-half">
+            <div class="footer-bottom">
+                <div class="footer-logo-area">
+                    <div style="color: white; font-size: 1.5rem; font-weight: 700; font-family: 'Outfit', sans-serif;">SYNCSKILL</div>
+                    <p class="logo-tagline">Your vision, realized through technology education.</p>
+                </div>
+                <div class="footer-links-container">
+                    <div class="footer-column">
+                        <h3>Company</h3>
+                        <ul>
+                            <li><a href="about-us.html">About Us</a></li>
+                            <li><a href="/contact-us.html">Contact Us</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Help Center</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Programs</h3>
+                        <ul>
+                            <li><a href="#">AICTE Internships</a></li>
+                            <li><a href="#">Premium Courses</a></li>
+                            <li><a href="#">Mentorship</a></li>
+                            <li><a href="#">Placement Support</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-copyright-bar">
+                <p class="copyright-text">&copy; 2026 SyncSkill. All rights reserved.</p>
+                <div class="copyright-links">
+                    <a href="/privacy-policy.html">Privacy Policy</a>
+                    <a href="/refund-policy.html">Refund Policy</a>
+                    <a href="/terms-and-conditions.html">Terms & Conditions</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+
+            // Navbar
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const menuOverlay = document.getElementById('menuOverlay');
+            const header = document.querySelector('.header');
+
+            function updateHeaderOnScroll() {
+                header.classList.toggle('scrolled', window.scrollY > 0);
+            }
+            window.addEventListener('scroll', updateHeaderOnScroll);
+            updateHeaderOnScroll();
+
+            const hamburgerSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+            const closeSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+
+            function setMenuIcon(isOpen) {
+                mobileMenuButton.innerHTML = isOpen ? closeSVG : hamburgerSVG;
+            }
+
+            function toggleMenu() {
+                const isActive = mobileMenu.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                setMenuIcon(isActive);
+                document.body.style.overflow = isActive ? 'hidden' : '';
+            }
+
+            mobileMenuButton.addEventListener('click', toggleMenu);
+            menuOverlay.addEventListener('click', toggleMenu);
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768 && mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    setMenuIcon(false);
+                }
+            });
+
+            setMenuIcon(false);
+
+            // Firebase (replace config)
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID"
+            };
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            const db = firebase.firestore();
+
+            const footerForm = document.getElementById('footerForm');
+            if (footerForm) {
+                footerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const mobileInput = document.getElementById('mobile');
+                    const mobile = mobileInput.value.trim();
+
+                    if (!/^\d{10}$/.test(mobile)) {
+                        alert('Please enter a valid 10-digit mobile number.');
+                        return;
+                    }
+
+                    const submitBtn = footerForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+
+                    db.collection('callbacks').add({
+                        mobile: '+91' + mobile,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        page: window.location.pathname
+                    })
+                    .then(() => {
+                        alert('Thank you! We will call you shortly.');
+                        mobileInput.value = '';
+                    })
+                    .catch((error) => {
+                        console.error('Error saving: ', error);
+                        alert('Something went wrong. Please try again later.');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Get a Call';
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
