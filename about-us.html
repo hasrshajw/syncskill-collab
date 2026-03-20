@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSkill · Accelerate Your Career</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- Tailwind (for new sections) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ----- global variables (merged: keep original for navbar/footer, new content uses its own roots) ----- */
+        :root {
+            --font-main: 'IBM Plex Sans', sans-serif;
+            --color-dark-teal: #002726;
+            --color-teal-hover: #004D4B;
+            --color-white: #ffffff;
+            --font-weight-medium: 500;
+            --header-height: 72px;
+
+            --font-xs: 0.75rem;
+            --font-sm: 0.875rem;
+            --font-base: 1rem;
+            --font-xl: 1.25rem;
+            --font-3xl: 1.875rem;
+            --font-4xl: 2.25rem;
+
+            --gray-ghost: #e3e8e6;
+            --text-muted: #5d6f6e;
+            --btn-green: #33C375;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #ffffff5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: var(--header-height); /* space for fixed header */
+            overflow-x: hidden;
+        }
+
+        a, button, .nav-link, .auth-button, .mobile-nav-link, .mobile-auth-button, .menu-button {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        /* ========== NAVBAR ========== */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 100;
+            background-color: var(--color-white);
+            border-bottom: 1px solid transparent;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .header.scrolled {
+            border-bottom-color: #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            width: 90%;
+            margin: 0 auto;
+            max-width: 1280px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo {
+            width: 140px;
+            height: auto;
+            display: block;
+        }
+
+        .nav-links {
+            display: none;
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links { display: flex; }
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            font-weight: var(--font-weight-medium);
+            color: var(--color-dark-teal);
+            text-decoration: none;
+            border-radius: 0;
+            transition: color 0.2s ease;
+            background: transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--color-teal-hover);
+            background: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-buttons {
+            display: none;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .auth-buttons { display: flex; }
+        }
+
+        .auth-button {
+            padding: 8px 24px;
+            font-weight: var(--font-weight-medium);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            border: 1px solid var(--color-dark-teal);
+            color: var(--color-dark-teal);
+            background: transparent;
+        }
+
+        .auth-button.submit {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        .auth-button.submit:hover {
+            background-color: var(--color-teal-hover);
+            border-color: var(--color-teal-hover);
+            color: var(--color-white);
+        }
+
+        .auth-button:not(.submit):hover {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        .menu-button {
+            display: flex;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f1f5f9;
+            cursor: pointer;
+            color: var(--color-dark-teal);
+            transition: background 0.1s;
+        }
+
+        @media (min-width: 768px) {
+            .menu-button { display: none; }
+        }
+
+        #mobileMenu {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            background: var(--color-white);
+            z-index: 90;
+            transform: translateY(-110%);
+            transition: transform 0.3s ease-in-out;
+            padding: 24px 5%;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #mobileMenu.active {
+            transform: translateY(0);
+        }
+
+        .mobile-nav-link {
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--color-dark-teal);
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .mobile-nav-link:hover {
+            color: var(--color-teal-hover);
+            background: transparent;
+        }
+
+        .mobile-auth-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .mobile-auth-button {
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid var(--color-dark-teal);
+            color: var(--color-dark-teal);
+            background: transparent;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .mobile-auth-button.submit {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        .mobile-auth-button.submit:hover {
+            background-color: var(--color-teal-hover);
+            border-color: var(--color-teal-hover);
+        }
+
+        .mobile-auth-button:not(.submit):hover {
+            background-color: var(--color-dark-teal);
+            color: var(--color-white);
+        }
+
+        #menuOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+            z-index: 80;
+            display: none;
+        }
+
+        #menuOverlay.active {
+            display: block;
+        }
+
+        /* ========== FOOTER (original, untouched) ========== */
+        .footer-section {
+            width: 100%;
+            font-family: var(--font-main);
+        }
+
+        .upper-half {
+            background-color: #ffffff;
+            position: relative;
+            padding-top: 40px;
+            padding-bottom: 150px;
+        }
+
+        .lower-half {
+            background-color: #002726;
+            padding: 190px 40px 60px 40px;
+        }
+
+        .subscribe-card {
+            background: linear-gradient(135deg, #003d3b, #002726);
+            color: #ffffff;
+            border-radius: 24px;
+            padding: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+            box-shadow: 0 10px 40px rgba(0, 39, 38, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            width: 90%;
+            max-width: 1200px;
+            z-index: 10;
+        }
+
+        .subscribe-info { flex: 1; }
+
+        .subscribe-info h2 {
+            font-size: var(--font-4xl);
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .subscribe-info p {
+            font-size: var(--font-base);
+            color: #d1d5db;
+            line-height: 1.6;
+            max-width: 90%;
+        }
+
+        .subscribe-form-area { flex-basis: 45%; }
+
+        .subscribe-form-area label {
+            display: block;
+            font-size: var(--font-sm);
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .subscribe-form { display: flex; gap: 12px; }
+
+        .input-with-prefix {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0 20px;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .input-with-prefix .prefix {
+            color: #ffffff;
+            font-size: var(--font-base);
+            margin-right: 8px;
+            pointer-events: none;
+        }
+
+        .subscribe-form input[type="tel"] {
+            width: 100%;
+            background-color: transparent;
+            border: none;
+            color: #ffffff;
+            padding: 16px 0;
+            font-size: var(--font-base);
+            outline: none;
+            font-family: var(--font-main);
+        }
+
+        .subscribe-form input[type="tel"]::placeholder { color: #b3d1d0; }
+
+        .input-with-prefix:focus-within {
+            border-color: #33c375;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .subscribe-form button {
+            background-color: #33c375;
+            color: #002726;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: var(--font-base);
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: var(--font-main);
+            transition: background-color 0.3s ease;
+        }
+
+        .subscribe-form button:hover { background-color: #2da765; }
+
+        .form-disclaimer {
+            font-size: var(--font-xs);
+            color: #b3d1d0;
+            margin-top: 16px;
+        }
+
+        .form-disclaimer a { color: #b3d1d0; text-decoration: underline; }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo-area { display: flex; flex-direction: column; gap: 16px; }
+
+        .logo-tagline { font-size: var(--font-sm); color: #d1d5db; }
+
+        .footer-links-container { display: flex; gap: 120px; }
+
+        .footer-column h3 {
+            font-size: var(--font-base);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-column ul { list-style: none; }
+
+        .footer-column ul li { margin-bottom: 18px; }
+
+        .footer-column ul li a {
+            text-decoration: none;
+            color: #d1d5db;
+            font-size: var(--font-base);
+            transition: color 0.2s ease-in-out;
+        }
+
+        .footer-column ul li a:hover { color: #33c375; }
+
+        .footer-copyright-bar {
+            max-width: 1200px;
+            margin: 60px auto 0 auto;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #d1d5db;
+            font-size: var(--font-sm);
+        }
+
+        .copyright-links { display: flex; gap: 24px; }
+
+        .copyright-links a {
+            text-decoration: none;
+            color: #d1d5db;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .copyright-links a:hover { color: #33c375; }
+
+        /* responsive footer (original, with missing brace fixed) */
+        @media (max-width: 1024px) {
+            .subscribe-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 40px;
+            }
+            .subscribe-form-area {
+                width: 100%;
+                margin-top: 20px;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                gap: 50px;
+            }
+            .footer-links-container {
+                gap: 60px;
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .subscribe-info h2 { font-size: var(--font-3xl); }
+            .subscribe-form { flex-direction: column; }
+            .footer-links-container { justify-content: flex-start; }
+            .upper-half { padding-bottom: 240px; }
+            .lower-half {
+                padding-top: 340px;
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            .footer-copyright-bar {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            .copyright-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .copyright-links a {
+                font-size: 14px;
+            }
+        }
+    </style>
+
+    <!-- New content styles (added after original to avoid conflicts, includes its own root) -->
+    <style>
+        /* New sections root (overrides --color-dark-teal but only affects new sections if classes conflict – navbar unaffected) */
+        :root {
+            --font-main: 'IBM Plex Sans', sans-serif;
+            --font-stat: 'Inter', sans-serif;
+            --color-dark-teal: #0B3A38;
+            --color-accent-green: #41B66E;
+            --color-accent-hover: #38a862;
+            --color-white: #ffffff;
+            --color-grid-lines: rgba(255, 255, 255, 0.04);
+            --ease-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --color-sync-text: #0F2A24;
+            --color-sync-desc: #37474F;
+            --color-border: #E0E0E0;
+        }
+
+        /* --- SECTION 1: HERO STYLES --- */
+        .hero-section { 
+            width: 100%; 
+            padding: 1rem 0; 
+            margin-bottom: 10px; 
+            margin-top: 40px; 
+        }
+
+        .content-card { 
+            width: 92%; 
+            max-width: 1400px; 
+            margin: auto; 
+            position: relative; 
+            border-radius: 2.5rem; 
+            overflow: hidden; 
+            background-color: #002726; 
+            padding: 2.5rem 4rem; 
+            display: flex; 
+            align-items: center; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+
+        .content-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: -20%; 
+            left: -10%; 
+            width: 60%; 
+            height: 140%; 
+            background: radial-gradient(circle, rgba(51, 195, 117, 0.07) 0%, transparent 70%); 
+            pointer-events: none; 
+        }
+
+        .hero-flex { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 3rem; 
+            width: 100%; 
+            position: relative; 
+            z-index: 1; 
+        }
+
+        .hero-left { 
+            width: 100%; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center; 
+        }
+
+        .hero-heading { 
+            font-size: clamp(2.5rem, 8vw, 6rem); 
+            font-weight: 600; 
+            color: var(--color-white); 
+            line-height: 1; 
+            letter-spacing: -0.02em; 
+            margin-bottom: 1rem; 
+            font-family: var(--font-main); 
+            white-space: nowrap;
+        }
+
+        .hero-subtext {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.05rem;
+            font-weight: 400;
+            max-width: 650px;
+            margin: 0 auto 2rem auto;
+            line-height: 1.6;
+        }
+
+        .hero-paragraph { 
+            color: rgba(255, 255, 255, 0.75); 
+            font-size: clamp(0.85rem, 2vw, 1.1rem); 
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            max-width: 800px; 
+            margin: 0 auto 0.1rem auto; 
+            line-height: 1.6; 
+            font-family: var(--font-main); 
+            white-space: nowrap;
+        }
+
+        .explore-button { 
+            background-color: var(--color-accent-green); 
+            color: var(--color-dark-teal); 
+            font-weight: 500; 
+            font-size: 15px; 
+            padding: 12px 28px; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.8rem; 
+            font-family: var(--font-main); 
+            box-shadow: inset 0 0 0 2px rgba(11, 58, 56, 0.2);
+            transition: background 0.25s ease;
+        }
+
+        .explore-button:hover { 
+            background-color: var(--color-accent-hover); 
+            box-shadow: inset 0 0 0 2px rgba(11, 58, 56, 0.2);
+        }
+
+        /* --- SECTION 2: ABOUT SYNCSKILL STYLES --- */
+        .sync-container {
+            padding: 80px 125px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .sync-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 60px;
+        }
+
+        .sync-text-content {
+            flex: 1.2;
+            text-align: left;
+        }
+
+        .sync-heading, .label-text {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #546E7A;
+            letter-spacing: 2px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .sync-subheading {
+            font-size: clamp(24px, 4vw, 36px);
+            line-height: 1.3;
+            font-weight: 500;
+            color: var(--color-sync-text);
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        .sync-description {
+            font-size: 16px;
+            color: var(--color-sync-desc);
+            margin-bottom: 20px;
+            max-width: 600px;
+            font-weight: 400;
+            line-height: 1.7;
+        }
+
+        .sync-image-wrapper {
+            flex: 0.8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sync-image-wrapper img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            opacity: 0.9;
+        }
+
+        /* --- SECTION 2.5: VISION, MISSION, OFFERS (CARD STYLES) --- */
+        .vm-section { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 40px; 
+            margin-top: 80px; 
+        }
+        
+        .vm-card { 
+            background: #FFFAF1;
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .offer-card {
+            width: 100%;
+        }
+
+        /* Side-by-Side Wrapper for Vision & Mission */
+        .vision-mission-row {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        
+        .vision-mission-row .vm-card {
+            flex: 1;
+        }
+
+        .mission-list { list-style: none; margin-top: 24px; }
+        .mission-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--color-sync-text);
+            line-height: 1.5;
+        }
+        .mission-icon {
+            flex-shrink: 0; width: 22px; height: 22px;
+            background-color: var(--color-accent-green);
+            color: var(--color-dark-teal);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-top: 2px;
+        }
+        .mission-icon svg { width: 12px; height: 12px; }
+
+        /* Premium Offer Row */
+        .offer-container { margin-top: 32px; }
+        .offer-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 24px 0;
+            border-top: 1px solid var(--color-border);
+            transition: all 0.4s ease;
+        }
+        .offer-row:first-child { border-top: none; padding-top: 0; }
+        .offer-row:last-child { padding-bottom: 0; }
+        .offer-index { flex: 0 0 50px; font-size: 13px; font-weight: 600; color: var(--color-accent-green); }
+        .offer-content { flex: 1; display: grid; grid-template-columns: 1fr 1.5fr; gap: 32px; }
+        .offer-title { font-size: 20px; font-weight: 500; color: var(--color-sync-text); }
+        .offer-desc { font-size: 15px; font-weight: 400; color: var(--color-sync-desc); line-height: 1.6; }
+
+        /* --- SECTION 3: FOUNDERS STYLES --- */
+        .desktop-divider {
+            height: 1px;
+            background: #E0E0E0;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .testimonial-container {
+            padding: 60px 125px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .desktop-testimonial-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px; 
+        }
+
+        .desktop-testimonial-section.section-reverse {
+            flex-direction: row-reverse;
+        }
+
+        .desktop-left-content-founders {
+            max-width: 420px;
+            flex: 1;
+        }
+        
+        .desktop-testimonial-card {
+            flex: 1;
+            background: #0F2A24;
+            border-radius: 20px;
+            padding: 32px 36px;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            min-height: 200px; 
+            max-width: 550px; 
+        }
+
+        .desktop-label {
+            margin-bottom: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #546E7A;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .desktop-name-heading-founders {
+            margin: 0 0 20px;
+            font-size: clamp(24px, 4vw, 32px);
+            line-height: 1.3;
+            font-weight: 500;
+            color: #0F2A24;
+            letter-spacing: -0.01em;
+        }
+
+        .desktop-buttons-founders {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .desktop-buttons-founders a {
+            text-decoration: none;
+            background: #0F2A24;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500; 
+            transition: background 0.3s;
+            flex: 1; 
+            text-align: center;
+            min-width: fit-content;
+        }
+
+        .desktop-buttons-founders a:hover {
+            background: #1A4D40;
+        }
+
+        .btn-story-founder {
+            display: block;
+            width: 100%; 
+            background: var(--color-accent-green); 
+            color: #0B3A38; 
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 500; 
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: inset 0 0 0 2px rgba(11, 58, 56, 0.2);
+            transition: background 0.25s ease;
+            margin-top: 12px;
+        }
+
+        .btn-story-founder:hover {
+            background: var(--color-accent-hover); 
+        }
+
+        .desktop-testimonial-card .desktop-profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #0A1B18;
+            flex-shrink: 0;
+        }
+
+        .desktop-testimonial-card .desktop-text-content {
+            margin-left: 28px;
+        }
+        
+        .desktop-name {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-accent-green);
+        }
+
+        .desktop-title {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        /* --- SECTION 4: STATISTICS STYLES --- */
+        .statistics-section {
+            font-family: var(--font-stat);
+        }
+
+        .stat-card {
+            border: 1px solid #eef2f6;
+            transition: transform 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+        .bg-dark-emerald {
+            background-color: #03211f; /* Custom Dark Green */
+        }
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 40px;
+        }
+        .bar {
+            width: 8px;
+            background-color: #10b981;
+            border-radius: 1px;
+        }
+
+        /* === SHARED RESPONSIVE STYLES === */
+        @media (max-width: 1024px) {
+            .sync-container {
+                padding: 60px 40px;
+            }
+            .sync-subheading {
+                font-size: 28px;
+            }
+            .offer-content { 
+                grid-template-columns: 1fr; 
+                gap: 12px; 
+            }
+        }
+
+        @media (max-width: 992px) {
+            .content-card { 
+                padding: 3rem 1rem; 
+                text-align: center; 
+                border-radius: 1.5rem;
+                width: 95%;
+            }
+            .content-card::before { 
+                top: 0; 
+                left: 50%; 
+                transform: translateX(-50%); 
+                width: 100%; 
+                height: 100%; 
+                background: radial-gradient(circle, rgba(51, 195, 117, 0.12) 0%, transparent 80%); 
+            }
+            .hero-flex { 
+                flex-direction: column; 
+                gap: 1rem; 
+            }
+            .hero-heading { 
+                font-size: clamp(2.2rem, 9vw, 3.5rem); 
+                line-height: 1; 
+                margin-bottom: 1rem;
+                white-space: nowrap;
+            }
+            .hero-subtext {
+                font-size: 0.95rem;
+                margin-bottom: 1.5rem;
+                padding: 0 1rem;
+            }
+            .hero-paragraph { 
+                font-size: clamp(0.7rem, 2.5vw, 0.95rem);
+                margin-bottom: 0.1rem; 
+                white-space: nowrap;
+                letter-spacing: 0.05em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                margin-top: 20px;
+            }
+
+            .sync-container {
+                padding: 50px 20px;
+            }
+            
+            .sync-section {
+                flex-direction: column;
+                text-align: left;
+                position: relative;
+                min-height: 400px; 
+                justify-content: flex-start;
+                gap: 40px;
+            }
+
+            .sync-text-content {
+                order: 1;
+                position: relative;
+                z-index: 2; 
+            }
+
+            .sync-image-wrapper {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 100%;
+                height: 100%;
+                opacity: 1; 
+                z-index: 1;
+                pointer-events: none; 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .sync-image-wrapper img {
+                max-width: 320px; 
+                width: 90%; 
+            }
+
+            .sync-subheading {
+                font-size: 24px;
+            }
+
+            .sync-description {
+                font-size: 15px;
+            }
+
+            /* Responsive fixes for new Vision/Mission/Offer Content */
+            .vm-section { 
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-auto-rows: 1fr;
+                gap: 24px; 
+                margin-top: 50px; 
+            }
+            .vision-mission-row {
+                display: contents;
+            }
+            .vm-card {
+                padding: 28px 20px;
+                height: 100%; 
+            }
+            .mission-item { 
+                font-size: 15px; 
+            }
+            .offer-row { 
+                padding: 16px 0; 
+                align-items: center;
+            }
+            .offer-index { 
+                flex: 0 0 35px; 
+                font-size: 12px;
+            }
+            .offer-title {
+                font-size: 18px;
+            }
+            .offer-desc {
+                display: none; 
+            }
+
+            /* Founders Mobile Styles */
+            .testimonial-container {
+                padding: 40px 20px;
+            }
+            
+            .desktop-testimonial-section,
+            .desktop-testimonial-section.section-reverse {
+                flex-direction: column; 
+                gap: 28px;
+            }
+            
+            .desktop-left-content-founders {
+                text-align: left; 
+                max-width: 100%;
+                flex: none;
+                width: 100%;
+            }
+            
+            .desktop-buttons-founders {
+                justify-content: flex-start;
+            }
+            
+            .desktop-name-heading-founders {
+                font-size: 24px;
+            }
+            
+            .desktop-testimonial-card {
+                flex-direction: column;
+                align-items: center; 
+                padding: 28px 20px;
+                max-width: 100%;
+                flex: none;
+                width: 100%;
+            }
+            
+            .desktop-testimonial-card .desktop-profile-pic {
+                margin-bottom: 20px;
+                width: 100px;
+                height: 100px;
+            }
+            
+            .desktop-testimonial-card .desktop-text-content {
+                margin-left: 0;
+                width: 100%;
+                text-align: center; 
+            }
+        }
+
+        /* Fix for very small devices */
+        @media (max-width: 360px) {
+            .hero-heading {
+                font-size: 2.2rem;
+            }
+            .hero-paragraph {
+                font-size: 0.7rem;
+            }
+            .hero-subtext {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR (exactly from original) ===== -->
+    <header class="header">
+        <div class="header-container">
+            <div class="nav-left">
+                <a href="/" aria-label="Home">
+                    <img class="logo" src="assets/syncskill-logo.svg" alt="SyncSkill Logo">
+                </a>
+                <div class="nav-links">
+                    <a class="nav-link" href="/upskill">Upskill your Team</a>
+                    <a class="nav-link" href="/about-us">About</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <button class="menu-button" id="mobileMenuButton" aria-label="Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div class="auth-buttons">
+                    <a class="auth-button submit" href="/login">Login</a>
+                    <a class="auth-button" href="/apply">Apply as Mentor</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile drawer (original) -->
+    <div id="mobileMenu">
+        <a href="/upskill" class="mobile-nav-link">Upskill your Team</a>
+        <a href="/about-us" class="mobile-nav-link">About</a>
+        <div class="mobile-auth-stack">
+            <a href="/login" class="mobile-auth-button submit">Login</a>
+            <a href="/apply" class="mobile-auth-button">Apply as Mentor</a>
+        </div>
+    </div>
+    <div id="menuOverlay"></div>
+
+    <!-- ===== NEW CONTENT (replaces old 404 main) ===== -->
+    <!-- SECTION 1: HERO -->
+    <section class="hero-section">
+        <div class="content-card">
+            <div class="hero-flex">
+                <div class="hero-left">
+                    <p class="hero-paragraph">
+                        GROW YOUR CAREER WITH 
+                    </p>
+                    <h1 class="hero-heading">
+                        10x Faster
+                    </h1>
+                    <p class="hero-subtext">
+                        At SyncSkill, we connect students with industry experts through practical learning programs that bridge the gap between college and careers in an AI-first world.
+                    </p>
+                    <a href="/programs.html" class="explore-button">
+                        <span>Explore Programs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 12 13" fill="none">
+                            <path d="M1 7.11108L6 12L11 7.11108" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M1 1L6 5.88889L11 1" stroke="currentColor" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: ABOUT SYNCSKILL & NEW SECTIONS -->
+    <div class="sync-container">
+        
+        <!-- About Section -->
+        <section class="sync-section">
+            <div class="sync-text-content">
+                <p class="label-text">About SyncSkill</p>
+                <h1 class="sync-subheading">Turning Learning Into Real Skills</h1>
+                
+                <p class="sync-description">
+                    SyncSkill is a modern learning platform built to bridge the gap between academic education and real-world skills. We believe that education should not stop at theory — it should prepare students for real careers and real challenges.
+                </p>
+                
+                <p class="sync-description">
+                    Today, many students graduate with strong academic knowledge but limited practical exposure. SyncSkill was created to solve this gap by offering skill-focused learning, practical training, and industry-oriented programs that help students become job-ready.
+                </p>
+            </div>
+
+            <div class="sync-image-wrapper">
+                <img src="https://syncskill.in/assets/gray-logo.svg" alt="SyncSkill Logo">
+            </div>
+        </section>
+
+        <!-- VISION, MISSION, OFFERS (NEW CARD CONTENT) -->
+        <div class="vm-section">
+            
+            <!-- Side-by-Side Wrapper -->
+            <div class="vision-mission-row">
+                <!-- Vision Card -->
+                <section class="vm-card">
+                    <p class="label-text">Our Vision</p>
+                    <h2 class="sync-subheading">Building Future Professionals</h2>
+                    <p class="sync-description">
+                        Our vision is to create a learning ecosystem where students can develop practical skills, gain real experience, and confidently step into the professional world.
+                    </p>
+                    <p class="sync-description">
+                        We aim to build a platform where education and industry connect to create future-ready professionals.
+                    </p>
+                </section>
+
+                <!-- Mission Card -->
+                <section class="vm-card">
+                    <p class="label-text">Our Mission</p>
+                    <h2 class="sync-subheading">Our Mission is Simple:</h2>
+                    
+                    <ul class="mission-list">
+                        <li class="mission-item">
+                            <div class="mission-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Help students develop industry-relevant skills</span>
+                        </li>
+                        <li class="mission-item">
+                            <div class="mission-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Provide practical learning experiences</span>
+                        </li>
+                        <li class="mission-item">
+                            <div class="mission-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Make career-focused education accessible</span>
+                        </li>
+                        <li class="mission-item">
+                            <div class="mission-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span>Prepare students for real-world opportunities</span>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- Offer Card (Full Width) -->
+            <section class="vm-card offer-card">
+                <p class="label-text">What We Offer</p>
+                <h2 class="sync-subheading">Core Programs</h2>
+                
+                <div class="offer-container">
+                    <div class="offer-row">
+                        <div class="offer-index">01</div>
+                        <div class="offer-content">
+                            <h3 class="offer-title">Skill-Based Online Courses</h3>
+                            <p class="offer-desc">Programs designed around technologies and skills that are in demand in today’s industries.</p>
+                        </div>
+                    </div>
+                    <div class="offer-row">
+                        <div class="offer-index">02</div>
+                        <div class="offer-content">
+                            <h3 class="offer-title">Practical Learning Approach</h3>
+                            <p class="offer-desc">Our courses focus on understanding concepts through real examples and practical application.</p>
+                        </div>
+                    </div>
+                    <div class="offer-row">
+                        <div class="offer-index">03</div>
+                        <div class="offer-content">
+                            <h3 class="offer-title">Internship Opportunities</h3>
+                            <p class="offer-desc">Students gain exposure to real working environments through structured programs.</p>
+                        </div>
+                    </div>
+                    <div class="offer-row">
+                        <div class="offer-index">04</div>
+                        <div class="offer-content">
+                            <h3 class="offer-title">Professional Certifications</h3>
+                            <p class="offer-desc">Learners receive certificates that reflect the skills they have successfully developed.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- SECTION 3: FOUNDERS -->
+    <div class="desktop-divider"></div>
+
+    <!-- Founder Section -->
+    <div class="testimonial-container">
+        <section class="desktop-testimonial-section">
+            <div class="desktop-left-content-founders">
+                <p class="desktop-label">The Founder</p>
+                <h2 class="desktop-name-heading-founders">HarshaVardhan Annam</h2>
+                <div class="desktop-buttons-founders">
+                    <a href="#" target="_blank">View LinkedIn</a>
+                    <a href="mailto:contact@ihtnas.com">Send Email</a>
+                </div>
+                <a href="#" class="btn-story-founder">Read Founder Story</a>
+            </div>
+
+            <aside class="desktop-testimonial-card">
+                <div class="desktop-profile-pic">
+                    <svg width="100%" height="100%" viewBox="0 0 100 100" style="background: #1a1a1a;">
+                        <circle cx="50" cy="40" r="20" fill="#2d4a46" />
+                        <path d="M20 90 Q50 60 80 90" stroke="#2d4a46" stroke-width="5" fill="none" />
+                    </svg>
+                </div>
+                <div class="desktop-text-content">
+                    <p class="desktop-name">A Note from the Founder</p>
+                    <p class="desktop-title">Don’t follow trends — <strong>Invent what’s missing.</strong><br>This journal is just the start.</p>
+                </div>
+            </aside>
+        </section>
+    </div>
+
+    <div class="desktop-divider"></div>
+
+    <!-- Co-Founder Section -->
+    <div class="testimonial-container">
+        <section class="desktop-testimonial-section section-reverse">
+            <div class="desktop-left-content-founders">
+                <p class="desktop-label">The Co-Founder</p>
+                <h2 class="desktop-name-heading-founders">Afroz Shaik</h2>
+                <div class="desktop-buttons-founders">
+                    <a href="#" target="_blank">View LinkedIn</a>
+                    <a href="mailto:contact@ihtnas.com">Send Email</a>
+                </div>
+            </div>
+
+            <aside class="desktop-testimonial-card">
+                <div class="desktop-profile-pic">
+                    <svg width="100%" height="100%" viewBox="0 0 100 100" style="background: #1a1a1a;">
+                        <circle cx="50" cy="40" r="20" fill="#33c375" />
+                        <path d="M20 90 Q50 60 80 90" stroke="#33c375" stroke-width="5" fill="none" />
+                    </svg>
+                </div>
+                <div class="desktop-text-content">
+                    <p class="desktop-name">A Note from the Co-Founder</p>
+                    <p class="desktop-title">Innovation thrives on collaboration. <strong>Building the future of research, together.</strong></p>
+                </div>
+            </aside>
+        </section>
+    </div>
+
+    <div class="desktop-divider"></div>
+
+    <!-- SECTION 4: STATISTICS -->
+    <div class="statistics-section p-6 md:p-16">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 md:gap-6">
+                
+                <!-- Card 1: Learners -->
+                <div class="stat-card bg-white rounded-3xl p-5 md:p-6 flex flex-col justify-center min-h-[110px] md:min-h-[130px] lg:col-span-1">
+                    <h3 class="text-xl md:text-2xl font-semibold text-slate-800 mb-1">6.5M+</h3>
+                    <p class="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wider">Learners</p>
+                </div>
+
+                <!-- Card 2: CSAT Score -->
+                <div class="stat-card bg-white rounded-3xl p-5 md:p-6 flex flex-col justify-center min-h-[110px] md:min-h-[130px] lg:col-span-1">
+                    <h3 class="text-xl md:text-2xl font-semibold text-slate-800 mb-1">4.5+</h3>
+                    <p class="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wider">CSAT Score</p>
+                </div>
+
+                <!-- Card 3: Mentors -->
+                <div class="stat-card bg-white rounded-3xl p-5 md:p-6 flex flex-col justify-center min-h-[110px] md:min-h-[130px] lg:col-span-1">
+                    <h3 class="text-xl md:text-2xl font-semibold text-slate-800 mb-1">400+</h3>
+                    <p class="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wider leading-tight">Mentors from top brands</p>
+                </div>
+
+                <!-- Card 4: Hours of Content -->
+                <div class="stat-card bg-white rounded-3xl p-5 md:p-6 flex flex-col justify-center min-h-[110px] md:min-h-[130px] lg:col-span-1">
+                    <h3 class="text-xl md:text-2xl font-semibold text-slate-800 mb-1">4000+</h3>
+                    <p class="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wider leading-tight">Hours of content</p>
+                </div>
+
+                <!-- Card 5: Business Outcome -->
+                <div class="col-span-2 lg:col-span-2 bg-dark-emerald rounded-3xl p-5 md:p-6 flex flex-row items-center justify-between min-h-[110px] md:min-h-[130px] overflow-hidden">
+                    <div class="pr-2">
+                        <h3 class="text-2xl font-semibold text-emerald-400 mb-1">+80%</h3>
+                        <p class="text-[10px] md:text-xs font-medium text-white uppercase tracking-wider">Business Outcome</p>
+                    </div>
+                    
+                    <div class="flex-shrink-0">
+                        <img 
+                            src="https://d31bwppm8yl9g2.cloudfront.net/learner/gs/graph.png" 
+                            alt="Growth Graph" 
+                            class="h-10 md:h-14 w-auto object-contain"
+                            onerror="this.parentElement.innerHTML = `
+                                <div class='bar-chart-container'>
+                                    <div class='bar' style='height: 40%;'></div>
+                                    <div class='bar' style='height: 70%; opacity: 0.8;'></div>
+                                    <div class='bar' style='height: 100%;'></div>
+                                </div>
+                            `"
+                        >
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER (exactly from original) ===== -->
+    <footer class="footer-section">
+        <div class="upper-half">
+            <div class="subscribe-card">
+                <div class="subscribe-info">
+                    <h2>Need Assistance with Internship?</h2>
+                    <p>From technical guidance to admission queries, we're here to help you kickstart your engineering career. Request a callback today.</p>
+                </div>
+                <div class="subscribe-form-area">
+                    <label for="mobile">Request a callback</label>
+                    <form action="#" method="POST" class="subscribe-form" id="footerForm">
+                        <div class="input-with-prefix">
+                            <span class="prefix">+91</span>
+                            <input type="tel" id="mobile" name="mobile" placeholder="Enter your mobile number" required maxlength="10" pattern="\d{10}" autocomplete="off">
+                        </div>
+                        <button type="submit">Get a Call</button>
+                    </form>
+                    <p class="form-disclaimer">By requesting a call, you agree to our <a href="#">Privacy Policy</a>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lower-half">
+            <div class="footer-bottom">
+                <div class="footer-logo-area">
+                    <div style="color: white; font-size: 1.5rem; font-weight: 700; font-family: 'Outfit', sans-serif;">SYNCSKILL</div>
+                    <p class="logo-tagline">Your vision, realized through technology education.</p>
+                </div>
+                <div class="footer-links-container">
+                    <div class="footer-column">
+                        <h3>Company</h3>
+                        <ul>
+                            <li><a href="about-us.html">About Us</a></li>
+                            <li><a href="/contact-us.html">Contact Us</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Help Center</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Programs</h3>
+                        <ul>
+                            <li><a href="#">AICTE Internships</a></li>
+                            <li><a href="#">Premium Courses</a></li>
+                            <li><a href="#">Mentorship</a></li>
+                            <li><a href="#">Placement Support</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-copyright-bar">
+                <p class="copyright-text">&copy; 2026 SyncSkill. All rights reserved.</p>
+                <div class="copyright-links">
+                    <a href="/privacy-policy.html">Privacy Policy</a>
+                    <a href="/refund-policy.html">Refund Policy</a>
+                    <a href="/terms-and-conditions.html">Terms & Conditions</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+
+            // Navbar (original)
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const menuOverlay = document.getElementById('menuOverlay');
+            const header = document.querySelector('.header');
+
+            function updateHeaderOnScroll() {
+                header.classList.toggle('scrolled', window.scrollY > 0);
+            }
+            window.addEventListener('scroll', updateHeaderOnScroll);
+            updateHeaderOnScroll();
+
+            const hamburgerSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+            const closeSVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+
+            function setMenuIcon(isOpen) {
+                mobileMenuButton.innerHTML = isOpen ? closeSVG : hamburgerSVG;
+            }
+
+            function toggleMenu() {
+                const isActive = mobileMenu.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+                setMenuIcon(isActive);
+                document.body.style.overflow = isActive ? 'hidden' : '';
+            }
+
+            mobileMenuButton.addEventListener('click', toggleMenu);
+            menuOverlay.addEventListener('click', toggleMenu);
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768 && mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    setMenuIcon(false);
+                }
+            });
+
+            setMenuIcon(false);
+
+            // Firebase (original – keep config placeholders)
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_AUTH_DOMAIN",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_STORAGE_BUCKET",
+                messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                appId: "YOUR_APP_ID"
+            };
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            const db = firebase.firestore();
+
+            const footerForm = document.getElementById('footerForm');
+            if (footerForm) {
+                footerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const mobileInput = document.getElementById('mobile');
+                    const mobile = mobileInput.value.trim();
+
+                    if (!/^\d{10}$/.test(mobile)) {
+                        alert('Please enter a valid 10-digit mobile number.');
+                        return;
+                    }
+
+                    const submitBtn = footerForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+
+                    db.collection('callbacks').add({
+                        mobile: '+91' + mobile,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        page: window.location.pathname
+                    })
+                    .then(() => {
+                        alert('Thank you! We will call you shortly.');
+                        mobileInput.value = '';
+                    })
+                    .catch((error) => {
+                        console.error('Error saving: ', error);
+                        alert('Something went wrong. Please try again later.');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Get a Call';
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
