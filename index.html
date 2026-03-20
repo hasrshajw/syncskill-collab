@@ -361,6 +361,224 @@
         .sec-sub { font-size: 1rem; color: #64748b; margin-top: 0.5rem; line-height: 1.6; }
 
         /* ══════════════════════════════
+           PARTNERSHIP FORM SECTION
+        ══════════════════════════════ */
+        .partnership-section {
+            background: #f8fafc;
+            padding: 90px 5%;
+        }
+        .partnership-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 80px;
+        }
+
+        /* Left copy */
+        .partner-copy { flex: 1; }
+        .partner-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 12px; border-radius: 999px;
+            background: rgba(65,182,110,0.1); border: 1px solid rgba(65,182,110,0.2);
+            color: #41B66E; font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+        }
+        .partner-badge svg { width: 12px; height: 12px; fill: currentColor; }
+        .partner-heading {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: clamp(1.9rem, 3vw, 2.8rem);
+            font-weight: 700; color: #002726;
+            line-height: 1.15; letter-spacing: -0.025em;
+            margin-bottom: 1.1rem;
+        }
+        .partner-heading span { color: #41B66E; }
+        .partner-desc {
+            font-size: 1.05rem; color: #64748b;
+            line-height: 1.7; max-width: 440px;
+            margin-bottom: 2rem;
+        }
+        .partner-support-card {
+            display: inline-flex; align-items: center; gap: 14px;
+            background: #ffffff; border: 1px solid #e2e8f0;
+            border-radius: 16px; padding: 16px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .partner-support-icon {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: #002726; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .partner-support-icon svg { width: 22px; height: 22px; color: #41B66E; stroke: #41B66E; fill: none; }
+        .partner-support-title { font-weight: 700; color: #0f172a; font-size: 0.94rem; margin-bottom: 2px; }
+        .partner-support-sub { font-size: 0.82rem; color: #94a3b8; }
+
+        /* Form card */
+        .partner-form-wrap { flex: 1; max-width: 520px; width: 100%; }
+        .partner-form-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.06);
+        }
+        .pf-title { font-size: 1.4rem; font-weight: 700; color: #002726; margin-bottom: 4px; }
+        .pf-sub { font-size: 0.85rem; color: #94a3b8; margin-bottom: 2rem; }
+
+        .pf-fields { display: flex; flex-direction: column; gap: 20px; }
+
+        /* Floating label inputs */
+        .pf-group {
+            position: relative;
+            padding-top: 8px;
+        }
+        .pf-input {
+            width: 100%;
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px; font-weight: 500;
+            padding: 16px;
+            outline: none;
+            color: #121212;
+            transition: border-color .3s, box-shadow .3s;
+            font-family: var(--font);
+            min-height: 56px;
+            box-sizing: border-box;
+        }
+        .pf-input:hover { border-color: #cbd5e1; }
+        .pf-input:focus {
+            border-color: #41B66E;
+            box-shadow: 0 0 0 4px rgba(65,182,110,0.12);
+        }
+        .pf-label {
+            position: absolute;
+            top: 25px; left: 16px;
+            color: #555;
+            pointer-events: none;
+            transition: all .3s var(--ease-smooth);
+            font-size: 15px;
+            background: transparent;
+        }
+        .pf-input:focus ~ .pf-label,
+        .pf-input:not(:placeholder-shown) ~ .pf-label {
+            top: 0; left: 12px;
+            font-size: 11px; font-weight: 700;
+            color: #41B66E;
+            background: #ffffff;
+            padding: 0 6px;
+            letter-spacing: 0.02em;
+        }
+
+        /* Custom select */
+        .pf-select-wrapper { position: relative; padding-top: 8px; }
+        .pf-select-trigger {
+            width: 100%;
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px; font-weight: 500;
+            padding: 16px;
+            outline: none;
+            color: #121212;
+            transition: border-color .3s, box-shadow .3s;
+            font-family: var(--font);
+            min-height: 56px;
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; user-select: none;
+            box-sizing: border-box;
+        }
+        .pf-select-trigger:hover { border-color: #cbd5e1; }
+        .pf-select-wrapper.open .pf-select-trigger {
+            border-color: #41B66E;
+            box-shadow: 0 0 0 4px rgba(65,182,110,0.12);
+        }
+        .pf-chevron {
+            width: 10px; height: 10px;
+            border-right: 2px solid #94a3b8;
+            border-bottom: 2px solid #94a3b8;
+            transform: rotate(45deg);
+            transition: transform 0.3s ease, border-color 0.3s;
+            margin-bottom: 3px; flex-shrink: 0;
+        }
+        .pf-select-wrapper.open .pf-chevron {
+            transform: rotate(-135deg);
+            margin-bottom: -3px;
+            border-color: #41B66E;
+        }
+        .pf-select-label {
+            position: absolute;
+            top: 25px; left: 16px;
+            color: #555; pointer-events: none;
+            transition: all .3s var(--ease-smooth);
+            font-size: 15px; font-family: var(--font);
+            background: transparent;
+        }
+        .pf-select-wrapper.has-value .pf-select-label,
+        .pf-select-wrapper.open .pf-select-label {
+            top: 0; left: 12px;
+            font-size: 11px; font-weight: 700;
+            color: #41B66E;
+            background: #ffffff;
+            padding: 0 6px;
+            letter-spacing: 0.02em;
+        }
+        .pf-options {
+            position: absolute;
+            top: calc(100% - 2px); left: 0; right: 0;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            z-index: 100;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.25s var(--ease-smooth);
+            overflow: hidden;
+        }
+        .pf-select-wrapper.open .pf-options {
+            opacity: 1; visibility: visible;
+            transform: translateY(0);
+        }
+        .pf-option {
+            padding: 14px 16px;
+            cursor: pointer; font-size: 14px; font-weight: 500;
+            color: #1e293b;
+            transition: background .2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .pf-option:last-child { border-bottom: none; }
+        .pf-option:hover { background: rgba(65,182,110,0.08); color: #002726; }
+
+        /* Submit btn */
+        .pf-submit {
+            width: 100%; padding: 16px 24px;
+            background: #41B66E; color: #002726;
+            font-weight: 700; font-size: 1rem;
+            border: none; border-radius: 12px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: var(--font);
+            transition: background .25s, transform .25s, box-shadow .25s;
+            margin-top: 8px;
+        }
+        .pf-submit:hover {
+            background: #38a862;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(65,182,110,0.28);
+        }
+        .pf-submit svg { width: 18px; height: 18px; stroke: #002726; fill: none; flex-shrink: 0; }
+        .pf-note { font-size: 0.75rem; text-align: center; color: #94a3b8; margin-top: 12px; }
+
+        @media (max-width: 900px) {
+            .partnership-inner { flex-direction: column; gap: 48px; }
+            .partner-form-wrap { max-width: 100%; }
+        }
+        @media (max-width: 600px) {
+            .partner-form-card { padding: 1.8rem 1.4rem; }
+        }
+
+        /* ══════════════════════════════
            FOOTER
         ══════════════════════════════ */
         .page-container { width: 100%; padding: 0; box-sizing: border-box; font-family: 'IBM Plex Sans', sans-serif; }
@@ -652,6 +870,7 @@
                     <div class="dept-item"><svg class="check-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path class="check-icon-mark" fill="none" d="M7 12.5l3 3 7-7"/></svg><span class="dept-item-text">Result-driven initiatives</span></div>
                     <div class="dept-item"><svg class="check-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path class="check-icon-mark" fill="none" d="M7 12.5l3 3 7-7"/></svg><span class="dept-item-text">Visible, trackable performance</span></div>
                 </div>
+                <img src="https://d31bwppm8yl9g2.cloudfront.net/learner/gs/gslogo.svg" alt="" class="dept-arrow">
             </div>
             <div class="dept-card">
                 <div class="dept-card-title">Zero Effort. Maximum Impact.</div>
@@ -661,6 +880,7 @@
                     <div class="dept-item"><svg class="check-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path class="check-icon-mark" fill="none" d="M7 12.5l3 3 7-7"/></svg><span class="dept-item-text">HOD referral honorarium</span></div>
                     <div class="dept-item"><svg class="check-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path class="check-icon-mark" fill="none" d="M7 12.5l3 3 7-7"/></svg><span class="dept-item-text">Priority program access</span></div>
                 </div>
+                <img src="https://d31bwppm8yl9g2.cloudfront.net/learner/gs/gslogo.svg" alt="" class="dept-arrow">
             </div>
         </div>
     </div>
@@ -723,6 +943,87 @@
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- ═══════════════ PARTNERSHIP FORM ═══════════════ -->
+<section class="partnership-section" id="apply">
+    <div class="partnership-inner">
+
+        <!-- Left: Copy -->
+        <div class="partner-copy">
+            <div class="partner-badge">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Institutional Partnership
+            </div>
+            <h2 class="partner-heading">
+                Empower Your Students.<br><span>Partner with Us.</span>
+            </h2>
+            <p class="partner-desc">
+                Set your college apart by integrating industry-leading, project-driven tech education directly into your department. Fill out the form to initiate your cohort.
+            </p>
+            <div class="partner-support-card">
+                <div class="partner-support-icon">
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div>
+                    <div class="partner-support-title">Dedicated Support</div>
+                    <div class="partner-support-sub">A curriculum expert will contact you shortly.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="partner-form-wrap">
+            <div class="partner-form-card">
+                <div class="pf-title">Start Your Cohort</div>
+                <div class="pf-sub">Enter your details to register your institution.</div>
+
+                <form id="partnerForm" novalidate>
+                    <div class="pf-fields">
+
+                        <!-- Full Name -->
+                        <div class="pf-group">
+                            <input class="pf-input" type="text" id="pf-name" placeholder=" " required>
+                            <label class="pf-label" for="pf-name">Full Name</label>
+                        </div>
+
+                        <!-- College Name -->
+                        <div class="pf-group">
+                            <input class="pf-input" type="text" id="pf-college" placeholder=" " required>
+                            <label class="pf-label" for="pf-college">College / Institution Name</label>
+                        </div>
+
+                        <!-- Custom Dropdown -->
+                        <div class="pf-group pf-select-wrapper" id="pf-student-select">
+                            <div class="pf-select-trigger" tabindex="0">
+                                <span class="pf-selected-text" style="font-size:15px;font-weight:500;color:#999;"></span>
+                                <span class="pf-chevron"></span>
+                            </div>
+                            <label class="pf-select-label">Number of Students</label>
+                            <input type="hidden" name="student_count" id="pf-student-hidden" required>
+                            <div class="pf-options">
+                                <div class="pf-option" data-value="0-50">0 – 50 Students</div>
+                                <div class="pf-option" data-value="50-100">50 – 100 Students</div>
+                                <div class="pf-option" data-value="100-200">100 – 200 Students</div>
+                                <div class="pf-option" data-value="200-300">200 – 300 Students</div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div>
+                            <button type="submit" class="pf-submit">
+                                Submit Details
+                                <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </button>
+                            <p class="pf-note">Your information is secure and confidential.</p>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </section>
 
@@ -809,7 +1110,54 @@
         });
         setMenuIcon(false);
 
-        // Smooth scroll for anchor links
+        // Partnership form dropdown logic
+        const pfSelects = document.querySelectorAll('.pf-select-wrapper');
+        pfSelects.forEach(wrapper => {
+            const trigger = wrapper.querySelector('.pf-select-trigger');
+            const options = wrapper.querySelectorAll('.pf-option');
+            const hidden  = wrapper.querySelector('input[type="hidden"]');
+            const selText = wrapper.querySelector('.pf-selected-text');
+
+            // Prevent clicks inside wrapper from closing the dropdown
+            wrapper.addEventListener('click', e => e.stopPropagation());
+
+            trigger.addEventListener('click', e => {
+                e.stopPropagation();
+                const isOpen = wrapper.classList.contains('open');
+                // Close all others first
+                pfSelects.forEach(w => w.classList.remove('open'));
+                // Toggle this one
+                if (!isOpen) wrapper.classList.add('open');
+            });
+
+            options.forEach(opt => {
+                opt.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (hidden)  hidden.value = opt.getAttribute('data-value');
+                    if (selText) { selText.textContent = opt.textContent; selText.style.color = '#121212'; }
+                    wrapper.classList.remove('open');
+                    wrapper.classList.add('has-value');
+                });
+            });
+        });
+        document.addEventListener('click', () => pfSelects.forEach(w => w.classList.remove('open')));
+
+        // Partnership form submit
+        const pForm = document.getElementById('partnerForm');
+        if (pForm) {
+            pForm.addEventListener('submit', e => {
+                e.preventDefault();
+                alert('Details submitted successfully! We will contact you shortly.');
+                pForm.reset();
+                pfSelects.forEach(w => {
+                    w.classList.remove('has-value');
+                    const st = w.querySelector('.pf-selected-text');
+                    if (st) st.textContent = '';
+                    const hi = w.querySelector('input[type="hidden"]');
+                    if (hi) hi.value = '';
+                });
+            });
+        }
         document.querySelectorAll('a[href^="#"]').forEach(a => {
             a.addEventListener('click', function (e) {
                 const id = this.getAttribute('href').slice(1);
