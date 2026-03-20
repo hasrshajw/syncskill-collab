@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Submit Application | SyncSkill</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        /* --- 1. MODERN DESIGN SYSTEM & COLOR PALETTE --- */
+        :root {
+            --font-main: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+            --light-bg-primary: #ffffff;
+            --light-bg-secondary: #f8f9fa;
+            --light-text-primary: #121212;
+            --light-text-secondary: #555555;
+            --light-border: #e0e0e0;
+            
+            /* Left panel colors */
+            --dark-bg-primary: #03211F;
+            --dark-bg-secondary: #021413; 
+            
+            --dark-text-primary: #f0f6fc;
+            --dark-text-secondary: #8b949e;
+            --dark-border: #30363d;
+            --btn-primary-bg: #33c375;
+            --btn-primary-hover: #6AD384;
+            --btn-primary-text: #012726;
+            --btn-primary-shadow: rgba(0, 39, 38, 0.3);
+            
+            /* Input field highlight colors */
+            --color-accent: #3BBF6B;
+            --color-focus-ring: rgba(59, 191, 107, 0.25);
+            
+            --color-success: #198754;
+            --color-error: #dc3545;
+            --radius-md: .5rem; --radius-lg: .75rem; --radius-xl: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --ease: cubic-bezier(.4,0,.2,1);
+        }
+
+        /* --- 2. BASE STYLES & ANIMATIONS --- */
+        * { box-sizing: border-box; }
+        html { height: 100%; }
+        /* Globally applied IBM Plex Sans */
+        body, input, textarea, select, button { 
+            margin: 0; 
+            font-family: var(--font-main); 
+            background-color: var(--light-bg-primary); 
+            color: var(--light-text-primary); 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+        }
+        body { height: 100%; }
+        h1,h2,h3,h4,h5,h6 { font-weight: 600; font-family: var(--font-main); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pop-in { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0) scale(1.1); } 20%, 80% { transform: translate3d(2px, 0, 0) scale(1.1); } 30%, 50%, 70% { transform: translate3d(-3px, 0, 0) scale(1.1); } 40%, 60% { transform: translate3d(3px, 0, 0) scale(1.1); } }
+        
+        /* Fixed clipping issue for animation by setting overflow: visible */
+        .success-icon, .error-icon { animation: pop-in 0.4s var(--ease); overflow: visible !important; width: 100%; height: 100%; }
+        .error-icon { animation: shake 0.5s var(--ease); }
+        
+        /* --- 3. DESKTOP LAYOUT (FIXED & SCROLLABLE) --- */
+        .homepage { display: grid; grid-template-columns: 0.8fr 1.2fr; width: 100%; height: 100%; }
+        .guidance-panel {
+            position: sticky; top: 0; height: 100vh;
+            display: flex; flex-direction: column; 
+            justify-content: center;
+            padding: 40px 50px; 
+            color: var(--dark-text-primary);
+            background-color: var(--dark-bg-primary);
+            background-image: radial-gradient(circle at 10% 20%, oklch(from var(--dark-bg-secondary) l c h / 0.7) 0%, transparent 50%),
+                              linear-gradient(170deg, var(--dark-bg-primary) 0%, oklch(from var(--dark-bg-primary) calc(l - 0.02) c h) 100%);
+            border-right: 1px solid var(--dark-border);
+        }
+        .form-container {
+            background-color: var(--light-bg-primary); display: flex;
+            align-items: flex-start;
+            justify-content: center; padding: 50px 40px;
+            height: 100%; overflow-y: auto;
+        }
+        .form-container::-webkit-scrollbar { width: 6px; }
+        .form-container::-webkit-scrollbar-track { background: var(--light-bg-secondary); }
+        .form-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        
+        .step-card { 
+            display: flex;
+            align-items: center; 
+            gap: 16px;
+            position: relative; 
+            margin-bottom: 15px; 
+            border: 1px solid transparent; 
+            border-radius: var(--radius-lg); 
+            padding: 14px 20px; 
+            transition: all 0.4s var(--ease); 
+            opacity: 0.4; 
+        }
+        .step-card.active { opacity: 1; transform: scale(1.02); border-color: var(--dark-border); box-shadow: 0 0 25px oklch(from var(--color-accent) l c h / 0.1), inset 0 0 0 1px var(--dark-border); }
+        .step-card.completed { opacity: 0.7; }
+        
+        .step-number { 
+            font-size: 22px; 
+            font-weight: 700; 
+            border-radius: var(--radius-md); 
+            padding: 10px 14px; 
+            color: var(--dark-text-secondary); 
+            background-color: var(--dark-border); 
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .step-card.active .step-number { color: var(--color-accent); background-color: oklch(from var(--color-accent) l c h / 0.1); }
+        .step-card.completed .step-number { color: var(--color-success); background-color: oklch(from var(--color-success) l c h / 0.1); }
+        
+        .step-text { display: flex; flex-direction: column; gap: 4px; }
+        .step-card h3 { margin: 0; font-weight: 500; font-size: 18px; line-height: 1.2; }
+        .step-card p { margin: 0; font-size: 14px; color: var(--dark-text-secondary); line-height: 1.2; }
+
+        /* --- 4. RIGHT SIDE FORM AREA --- */
+        .form-wrapper { width: 100%; max-width: 520px; background-color: transparent; border: none; box-shadow: none; padding: 0; margin: auto 0; }
+        
+        .desktop-logo { text-align: center; margin-bottom: 24px; }
+        .desktop-logo img { height: 40px; }
+        
+        .desktop-form-title { font-size: 26px; font-weight: 600; margin: 0 0 30px 0; text-align: center; color: var(--light-text-primary); }
+        .user-form { position: relative; } 
+        .form-step { display: none; flex-direction: column; gap: 18px; }
+        .form-step.step-active { display: flex; animation: slideIn 0.5s var(--ease) forwards; }
+        
+        /* --- 5. INPUTS & VALIDATION --- */
+        .input-group { position: relative; padding-top: 8px; }
+        
+        .user-input { 
+            width: 100%; 
+            background-color: transparent; 
+            border: 1px solid var(--light-border); 
+            border-radius: var(--radius-md); 
+            font-size: 16px; 
+            font-weight: 500; 
+            padding: 14px; 
+            outline: none; 
+            color: var(--light-text-primary); 
+            transition: border-color 0.3s, box-shadow 0.3s; 
+        }
+        
+        .user-input:-webkit-autofill,
+        .user-input:-webkit-autofill:hover, 
+        .user-input:-webkit-autofill:focus, 
+        .user-input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px var(--light-bg-primary) inset !important;
+            -webkit-text-fill-color: var(--light-text-primary) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .user-input:hover { border-color: var(--light-text-secondary); }
+        .floating-label { position: absolute; top: 22px; left: 15px; color: var(--light-text-secondary); pointer-events: none; transition: all 0.3s var(--ease); font-weight: 400; }
+        .user-input:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-focus-ring); }
+        .user-input:focus + .floating-label, .user-input:not(:placeholder-shown) + .floating-label { top: 0px; left: 12px; font-size: 12px; font-weight: 500; color: var(--color-accent); background-color: var(--light-bg-primary); padding: 0 5px; }
+        
+        .validation-icon { position: absolute; right: 15px; top: 22px; width: 24px; height: 24px; opacity: 0; transform: scale(0.5); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
+        .user-input.valid ~ .validation-icon.success, .user-input.invalid ~ .validation-icon.error { opacity: 1; transform: scale(1); }
+        
+        /* Ensure error icons apply to custom dropdown validation state too, but hide success tick */
+        .custom-dropdown.invalid ~ .validation-icon.error { opacity: 1; transform: scale(1); right: 45px; } /* Shift error icon left so it doesn't overlap the arrow */
+        .custom-dropdown ~ .validation-icon.success { display: none !important; }
+
+        .error-message { font-size: 13px; font-weight: 400; color: var(--color-error); padding: 4px 0 0 5px; height: 20px; }
+
+        /* --- 6. CUSTOM UPWARD DROPDOWN --- */
+        .custom-dropdown { position: relative; width: 100%; cursor: pointer; }
+        .dropdown-selected { 
+            width: 100%; background-color: transparent; border: 1px solid var(--light-border); border-radius: var(--radius-md); 
+            min-height: 48px; /* Maintain height when empty */
+            font-size: 16px; font-weight: 500; padding: 14px; outline: none; 
+            color: var(--light-text-primary); transition: border-color 0.3s, box-shadow 0.3s; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .dropdown-selected:hover { border-color: var(--light-text-secondary); }
+        /* Add margin-left: auto so the arrow always stays on the far right even if no text is selected */
+        .dropdown-selected::after { content: '\e313'; font-family: 'Material Symbols Outlined'; font-size: 20px; transition: transform 0.3s; color: var(--light-text-secondary); margin-left: auto; }
+        .custom-dropdown.open .dropdown-selected::after { transform: rotate(180deg); color: var(--color-accent); }
+        .custom-dropdown.open .dropdown-selected { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-focus-ring); }
+        
+        .dropdown-list { 
+            position: absolute; bottom: 100%; left: 0; right: 0; margin: 0 0 8px 0; padding: 0; list-style: none; 
+            background: var(--light-bg-primary); border: 1px solid var(--light-border); border-radius: var(--radius-md); 
+            box-shadow: var(--shadow-lg); max-height: 250px; overflow-y: auto; z-index: 100; 
+            opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s var(--ease); 
+        }
+        .custom-dropdown.open .dropdown-list { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .dropdown-list::-webkit-scrollbar { width: 6px; }
+        .dropdown-list::-webkit-scrollbar-track { background: var(--light-bg-secondary); border-radius: 3px; }
+        .dropdown-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+        .dropdown-list li { padding: 12px 14px; font-size: 16px; color: var(--light-text-primary); transition: background 0.2s; }
+        .dropdown-list li:hover { background-color: var(--light-bg-secondary); }
+        .dropdown-list li.selected { background-color: oklch(from var(--color-accent) l c h / 0.1); color: var(--color-accent); font-weight: 600; }
+        
+        /* Dropdown Label dynamic floating logic */
+        .custom-dropdown-label { z-index: 10; }
+        .custom-dropdown.open ~ .custom-dropdown-label,
+        .custom-dropdown.has-value ~ .custom-dropdown-label { 
+            top: 0px; 
+            left: 12px; 
+            font-size: 12px; 
+            font-weight: 500; 
+            color: var(--color-accent); 
+            background-color: var(--light-bg-primary); 
+            padding: 0 5px; 
+        }
+
+        /* --- 7. BUTTONS & NAVIGATION --- */
+        .form-navigation { display: flex; justify-content: space-between; margin-top: 24px; gap: 12px; }
+        .form-button { 
+            flex: 1 1 0%; 
+            border: 1px solid var(--light-border); 
+            background-color: var(--light-bg-primary); 
+            color: var(--light-text-secondary); 
+            border-radius: var(--radius-xl); 
+            padding: 10px 24px; 
+            font-size: 16px !important; 
+            font-weight: 500 !important; 
+            cursor: pointer; 
+            transition: all 0.3s var(--ease); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            box-shadow: var(--shadow-sm); 
+        }
+        .btn-next, .btn-submit { font-size: 16px !important; font-weight: 500 !important; background-color: var(--btn-primary-bg); border: none; color: var(--btn-primary-text); box-shadow: inset 0 0 0 2px var(--btn-primary-shadow); padding: 12px 24px; border-radius: var(--radius-xl); }
+        .form-button:hover:not(:disabled) { border-color: var(--light-text-secondary); color: var(--light-text-primary); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-next:hover:not(:disabled), .btn-submit:hover:not(:disabled) { background-color: var(--btn-primary-hover); color: var(--btn-primary-text); transform: translateY(-2px); box-shadow: inset 0 0 0 2px var(--btn-primary-shadow), var(--shadow-md); }
+        .form-button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; transform: none; }
+        
+        /* --- 8. REVIEW & POPUP STYLES --- */
+        .welcome-message { text-align: left; color: var(--light-text-secondary); font-size: 16px; line-height: 1.7; padding: 10px 0; }
+        .review-section { background-color: var(--light-bg-secondary); padding: 15px; border-radius: var(--radius-lg); border: 1px solid var(--light-border); margin-bottom: 15px; }
+        .review-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .review-section-header h4 { margin: 0; font-size: 16px; font-weight: 600; color: var(--light-text-primary); }
+        .edit-btn { background: none; border: none; color: var(--color-accent); cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 14px; padding: 4px; border-radius: var(--radius-md); transition: background-color 0.3s var(--ease); font-weight: 500; }
+        .edit-btn:hover { background-color: oklch(from var(--color-accent) l c h / 0.1); }
+        .review-dl div { display: flex; padding: 8px 0; border-bottom: 1px solid var(--light-border); } .review-dl div:last-child { border-bottom: none; }
+        .review-dl dt { color: var(--light-text-secondary); flex-basis: 40%; font-weight: 400; }
+        .review-dl dd { color: var(--light-text-primary); font-weight: 500; margin: 0; flex-basis: 60%; }
+
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.4s var(--ease), visibility 0s 0.4s; }
+        .popup-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.4s var(--ease), visibility 0s 0s; }
+        .popup-card { background: var(--light-bg-primary); border: 1px solid var(--light-border); box-shadow: var(--shadow-lg); border-radius: var(--radius-xl); width: 90%; text-align: center; opacity: 0; transform: scale(0.95); transition: opacity 0.4s var(--ease), transform 0.4s var(--ease); position: relative; }
+        .popup-overlay.visible .popup-card { opacity: 1; transform: scale(1); }
+        #status-popup-card { max-width: 400px; padding: 40px; }
+        #popup-icon-container { width: 70px; height: 70px; margin: 0 auto 20px auto; }
+        .popup-title { font-size: 22px; font-weight: 600; margin: 0 0 10px 0; color: var(--light-text-primary); }
+        #status-popup-card.success .popup-title { color: var(--color-success); }
+        #status-popup-card.fail .popup-title { color: var(--color-error); }
+        .popup-message { color: var(--light-text-secondary); line-height: 1.6; margin: 0 0 30px 0; }
+        .popup-button { width: 100%; padding: 12px; font-size: 16px; font-weight: 500; color: white; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all 0.3s var(--ease); box-shadow: var(--shadow-sm); }
+        .popup-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+        #status-popup-card.success .popup-button { background-color: var(--color-success); }
+        #status-popup-card.fail .popup-button { background-color: var(--color-error); }
+        
+        #terms-popup-card { max-width: 600px; text-align: left; padding: 0; }
+        #terms-popup-header { padding: 24px; border-bottom: 1px solid var(--light-border); }
+        #terms-close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.3s var(--ease); }
+        #terms-close-btn svg { stroke: var(--color-error); }
+        #terms-close-btn:hover { background-color: oklch(from var(--color-error) l c h / 0.1); }
+        #terms-popup-content { max-height: 350px; overflow-y: auto; padding: 24px; font-size: 14px; color: var(--light-text-secondary); }
+        #terms-popup-content p { margin: 0 0 1em 0; } #terms-popup-content p:last-child { margin-bottom: 0; }
+        #terms-popup-footer { padding: 16px 24px; border-top: 1px solid var(--light-border); background-color: var(--light-bg-secondary); display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: var(--radius-xl); border-bottom-right-radius: var(--radius-xl); }
+        #terms-checkbox-container { display: flex; align-items: center; gap: 10px; }
+        #terms-agree-checkbox { width: 18px; height: 18px; accent-color: var(--color-accent); }
+        #terms-checkbox-container label { font-size: 14px; user-select: none; cursor: pointer; color: var(--light-text-secondary); }
+        #terms-submit-btn { padding: 14px 28px; font-size: 1rem; }
+        #terms-submit-btn:disabled { background-color: var(--light-border); border-color: transparent; box-shadow: none; color: var(--light-text-secondary); transform: none; cursor: not-allowed; }
+        
+        /* --- 9. MOBILE VIEW STYLES --- */
+        .mobile-header { display: none; }
+        @media (max-width: 1024px) {
+            body { overflow: auto; background-color: var(--light-bg-primary); }
+            .homepage { display: block; height: auto; }
+            .guidance-panel { display: none; }
+            .desktop-logo { display: none; }
+            .desktop-form-title { display: block; text-align: left; margin: 0 0 24px 0; font-size: 24px; }
+            .mobile-header {
+                display: flex; position: sticky; top: 0; width: 100%;
+                padding: 10px 1.5rem; z-index: 100;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid var(--light-border);
+                justify-content: flex-start; 
+                align-items: center;
+            }
+            #mobile-header-title { display: none; }
+            .mobile-header img { height: 30px; }
+            .form-container { padding: 20px 1.5rem; align-items: flex-start; }
+            .form-wrapper { padding: 0; margin: 0; }
+            .user-input { background-color: transparent; border-radius: var(--radius-lg); }
+            .user-input:focus + .floating-label, .user-input:not(:placeholder-shown) + .floating-label { background-color: var(--light-bg-primary); }
+            .user-input:focus { box-shadow: 0 0 0 3px var(--color-focus-ring); border-color: var(--color-accent); }
+            
+            .form-navigation { flex-direction: row; gap: 1rem; }
+            .form-button, .btn-next { width: 100%; justify-content: center; padding: 14px 24px; font-size: 16px !important; font-weight: 500 !important; border-radius: var(--radius-lg); }
+            .form-button.btn-prev { background: transparent; border-color: var(--light-border); color: var(--light-text-secondary); box-shadow: none; }
+            .form-button.btn-prev:hover:not(:disabled) { background: #e9ecef; border-color: transparent; }
+            .btn-next, .btn-next:hover:not(:disabled) { background-color: var(--btn-primary-bg); color: var(--btn-primary-text); box-shadow: inset 0 0 0 2px var(--btn-primary-shadow); }
+            .btn-next:hover:not(:disabled) { background-color: var(--btn-primary-hover); transform: translateY(-2px); box-shadow: inset 0 0 0 2px var(--btn-primary-shadow), var(--shadow-md); }
+        }
+    </style>
+</head>
+<body>
+    <header class="mobile-header">
+        <img alt="logo" src="https://syncskill.in/assets/syncskill-logo.svg">
+        <h2 id="mobile-header-title"></h2>
+    </header>
+
+    <div id="app">
+        <div class="homepage">
+            <div class="guidance-panel">
+                <div class="guidance-steps">
+                    <div class="step-card" data-step="0">
+                        <div class="step-number">01</div>
+                        <div class="step-text"><h3>Welcome</h3><p>Start your submission journey.</p></div>
+                    </div>
+                    <div class="step-card" data-step="1">
+                        <div class="step-number">02</div>
+                        <div class="step-text"><h3>Introduce Yourself</h3><p>Let us know who you are.</p></div>
+                    </div>
+                    <div class="step-card" data-step="2">
+                        <div class="step-number">03</div>
+                        <div class="step-text"><h3>Detail Your Expertise</h3><p>Provide your professional background.</p></div>
+                    </div>
+                    <div class="step-card" data-step="3">
+                        <div class="step-number">04</div>
+                        <div class="step-text"><h3>Social Profiles</h3><p>Share your professional networks.</p></div>
+                    </div>
+                    <div class="step-card" data-step="4">
+                        <div class="step-number">05</div>
+                        <div class="step-text"><h3>Final Review & T&C</h3><p>Confirm details and agree to terms.</p></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-wrapper">
+                    <div class="desktop-logo">
+                        <img alt="logo" src="https://syncskill.in/assets/syncskill-logo.svg">
+                    </div>
+                    <h2 id="desktop-form-title" class="desktop-form-title"></h2>
+                    <form class="user-form" id="userForm" novalidate>
+                        
+                        <!-- Step 0: Welcome -->
+                        <div class="form-step">
+                            <div class="welcome-message">
+                                <p>Thank you for choosing to submit your application to SyncSkill.<br>This guided process will take just a few moments. Please click "Next" to begin.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 1: Introduce Yourself -->
+                        <div class="form-step">
+                            <div class="input-group">
+                                <input id="name" class="user-input" name="name" type="text" placeholder=" " required minlength="3">
+                                <label for="name" class="floating-label">Full Name</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+                            <div class="input-group">
+                                <input id="email" class="user-input" name="email" type="email" placeholder=" " required>
+                                <label for="email" class="floating-label">Email Address</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+                            <div class="input-group">
+                                <input id="mobile" class="user-input" name="mobile" type="tel" value="+91 " placeholder=" " required minlength="14">
+                                <label for="mobile" class="floating-label">Mobile Number</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+                            <div class="input-group">
+                                <input type="hidden" id="domain" name="domain" value="" required>
+                                <div class="custom-dropdown" id="domain-dropdown">
+                                    <div class="dropdown-selected"></div>
+                                    <ul class="dropdown-list">
+                                        <li data-value="Product">Product</li>
+                                        <li data-value="Marketing">Marketing</li>
+                                        <li data-value="Design">Design</li>
+                                        <li data-value="Data">Data</li>
+                                        <li data-value="Tech">Tech</li>
+                                        <li data-value="Career Building">Career Building</li>
+                                        <li data-value="Business">Business</li>
+                                        <li data-value="Artificial Intelligence">Artificial Intelligence</li>
+                                    </ul>
+                                </div>
+                                <label class="floating-label custom-dropdown-label">Domain experience in?</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Detail Your Expertise (UPDATED) -->
+                        <div class="form-step">
+                            <div class="input-group">
+                                <input id="companies" class="user-input" name="companies" type="text" placeholder=" " required minlength="2">
+                                <label for="companies" class="floating-label">Companies that you have worked at</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="hidden" id="teaching_exp" name="teaching_exp" value="" required>
+                                <div class="custom-dropdown" id="teaching-dropdown">
+                                    <div class="dropdown-selected"></div>
+                                    <ul class="dropdown-list">
+                                        <li data-value="Yes">Yes</li>
+                                        <li data-value="No">No</li>
+                                    </ul>
+                                </div>
+                                <label class="floating-label custom-dropdown-label">Do you have prior teaching or mentoring experience?</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+
+                            <div class="input-group" id="years_exp_group" style="display: none;">
+                                <input id="years_exp" class="user-input" name="years_exp" type="number" placeholder=" " min="0" step="0.5">
+                                <label for="years_exp" class="floating-label">How many years of experience do you have?</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+
+                            <div class="input-group">
+                                <input id="motivation" class="user-input" name="motivation" type="text" placeholder=" " required minlength="10">
+                                <label for="motivation" class="floating-label">What's your biggest motivation for teaching at SyncSkill?</label>
+                                <span class="validation-icon success"></span><span class="validation-icon error"></span><div class="error-message" aria-live="polite"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Social Profiles -->
+                        <div class="form-step">
+                            <div class="input-group">
+                                <input id="whatsapp" class="user-input" name="whatsapp" type="tel" placeholder=" ">
+                                <label for="whatsapp" class="floating-label">WhatsApp Number (Optional)</label>
+                            </div>
+                            <div class="input-group">
+                                <input id="linkedin" class="user-input" name="linkedin" type="text" placeholder=" ">
+                                <label for="linkedin" class="floating-label">LinkedIn Profile (Optional)</label>
+                            </div>
+                            <div class="input-group">
+                                <input id="instagram" class="user-input" name="instagram" type="text" placeholder=" ">
+                                <label for="instagram" class="floating-label">Instagram ID (Optional)</label>
+                            </div>
+                            <div class="input-group">
+                                <input id="x_id" class="user-input" name="x_id" type="text" placeholder=" ">
+                                <label for="x_id" class="floating-label">X (Twitter) ID (Optional)</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 4: Final Review -->
+                        <div class="form-step">
+                            <div class="review-summary">
+                                <div class="review-section">
+                                    <div class="review-section-header"><h4>Identity & Domain</h4><button type="button" class="edit-btn" data-target-step="1"><span class="material-symbols-outlined">edit</span> Edit</button></div>
+                                    <dl class="review-dl">
+                                        <div><dt>Full Name</dt><dd id="review-name"></dd></div>
+                                        <div><dt>Email</dt><dd id="review-email"></dd></div>
+                                        <div><dt>Mobile Number</dt><dd id="review-mobile"></dd></div>
+                                        <div><dt>Domain</dt><dd id="review-domain"></dd></div>
+                                    </dl>
+                                </div>
+                                <div class="review-section">
+                                    <div class="review-section-header"><h4>Expertise</h4><button type="button" class="edit-btn" data-target-step="2"><span class="material-symbols-outlined">edit</span> Edit</button></div>
+                                    <dl class="review-dl">
+                                        <div><dt>Companies</dt><dd id="review-companies"></dd></div>
+                                        <div><dt>Teaching Exp.</dt><dd id="review-teaching_exp"></dd></div>
+                                        <div id="review-years-wrapper" style="display: none;"><dt>Years of Exp.</dt><dd id="review-years_exp"></dd></div>
+                                        <div><dt>Motivation</dt><dd id="review-motivation"></dd></div>
+                                    </dl>
+                                </div>
+                                <div class="review-section">
+                                    <div class="review-section-header"><h4>Social Profiles</h4><button type="button" class="edit-btn" data-target-step="3"><span class="material-symbols-outlined">edit</span> Edit</button></div>
+                                    <dl class="review-dl">
+                                        <div><dt>WhatsApp</dt><dd id="review-whatsapp"></dd></div>
+                                        <div><dt>LinkedIn</dt><dd id="review-linkedin"></dd></div>
+                                        <div><dt>Instagram</dt><dd id="review-instagram"></dd></div>
+                                        <div><dt>X (Twitter)</dt><dd id="review-x_id"></dd></div>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="form-button btn-prev" style="display: none;"><span class="material-symbols-outlined">arrow_back</span> Previous</button>
+                            <button type="button" class="form-button btn-next">Next <span class="material-symbols-outlined">arrow_forward</span></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="status-popup-overlay" class="popup-overlay"><div id="status-popup-card" class="popup-card"><div id="popup-icon-container" class="popup-icon-container"></div><h2 id="popup-title" class="popup-title"></h2><p id="popup-message" class="popup-message"></p><button id="popup-button" class="popup-button"></button></div></div>
+    <div id="terms-popup-overlay" class="popup-overlay"><div id="terms-popup-card" class="popup-card">
+        <button id="terms-close-btn" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <div id="terms-popup-header"><h2 class="popup-title">Terms & Conditions</h2></div><div id="terms-popup-content"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. </p><p>Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor. Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum.</p><p>Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam nec ante. Sed lacinia, urna non tincidunt mattis, tortor neque adipiscing diam, a cursus ipsum ante quis turpis. Nulla facilisi. Ut fringilla. Suspendisse potenti. Nunc feugiat mi a tellus consequat imperdiet. Vestibulum sapien. Proin quam. Etiam ultrices. Suspendisse in justo eu magna luctus suscipit.</p></div><div id="terms-popup-footer"><div id="terms-checkbox-container"><input type="checkbox" id="terms-agree-checkbox"><label for="terms-agree-checkbox">I have read and agree to the Terms & Conditions.</label></div><div class="form-navigation" style="margin-top:0; justify-content: flex-end;"><button type="button" id="terms-submit-btn" class="form-button btn-submit" disabled>Agree & Submit</button></div></div></div></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('userForm');
+        const prevBtn = document.querySelector(".btn-prev");
+        const nextBtn = document.querySelector(".btn-next");
+        const formSteps = [...document.querySelectorAll(".form-step")];
+        const desktopFormTitle = document.getElementById('desktop-form-title');
+        const mobileHeaderTitle = document.getElementById('mobile-header-title');
+        const stepCards = [...document.querySelectorAll(".step-card")];
+        const statusPopupOverlay = document.getElementById('status-popup-overlay');
+        const statusPopupCard = document.getElementById('status-popup-card');
+        const popupIconContainer = document.getElementById('popup-icon-container');
+        const popupTitle = document.getElementById('popup-title');
+        const popupMessage = document.getElementById('popup-message');
+        const popupButton = document.getElementById('popup-button');
+        const termsPopupOverlay = document.getElementById('terms-popup-overlay');
+        const termsAgreeCheckbox = document.getElementById('terms-agree-checkbox');
+        const termsSubmitBtn = document.getElementById('terms-submit-btn');
+        const termsCloseBtn = document.getElementById('terms-close-btn');
+        
+        // Multi-Custom Dropdown Initialization
+        const customDropdowns = document.querySelectorAll('.custom-dropdown');
+        
+        customDropdowns.forEach(dropdown => {
+            const selected = dropdown.querySelector('.dropdown-selected');
+            const list = dropdown.querySelector('.dropdown-list');
+            const input = dropdown.previousElementSibling;
+            const options = list.querySelectorAll('li');
+
+            selected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                customDropdowns.forEach(d => { if(d !== dropdown) d.classList.remove('open'); });
+                dropdown.classList.toggle('open');
+            });
+
+            options.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selected.textContent = option.textContent;
+                    input.value = option.dataset.value;
+                    dropdown.classList.add('has-value');
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    dropdown.classList.remove('open');
+                    validateField(input);
+                    
+                    // Dispatch change event to trigger conditional logic
+                    input.dispatchEvent(new Event('change'));
+                });
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            customDropdowns.forEach(dropdown => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+        });
+
+        // Conditional Logic for Teaching Experience
+        const teachingExpInput = document.getElementById('teaching_exp');
+        const yearsExpGroup = document.getElementById('years_exp_group');
+        const yearsExpInput = document.getElementById('years_exp');
+
+        teachingExpInput.addEventListener('change', (e) => {
+            if (e.target.value === 'Yes') {
+                yearsExpGroup.style.display = 'block';
+                yearsExpInput.setAttribute('required', 'true');
+            } else {
+                yearsExpGroup.style.display = 'none';
+                yearsExpInput.removeAttribute('required');
+                yearsExpInput.value = '';
+                clearValidation(yearsExpInput);
+            }
+        });
+
+        const tickSVG = `<svg class="success-icon" viewBox="0 0 122.88 122.88"><g><path fill="var(--color-success)" d="M61.44,0c33.93,0,61.44,27.51,61.44,61.44s-27.51,61.44-61.44,61.44S0,95.37,0,61.44S27.51,0,61.44,0z M89.65,48.51 c-2.58-2.67-6.93-2.73-9.58-0.12l-26.54,26.43L42.28,63.5c-2.61-2.66-6.95-2.66-9.56,0c-2.61,2.66-2.61,6.95,0,9.62l16.1,16.42 c2.55,2.6,6.86,2.65,9.48,0.11l31.35-31.54C92.29,55.4,92.23,51.18,89.65,48.51z"/></g></svg>`;
+        const errorSVG = `<svg class="error-icon" viewBox="0 0 122.88 122.879"><g><path fill="var(--color-error)" d="M61.44,0c16.96,0,32.328,6.882,43.453,17.986c11.104,11.125,17.986,26.494,17.986,43.453 c0,16.961-6.883,32.328-17.986,43.453C93.769,115.998,78.4,122.879,61.44,122.879c-16.96,0-32.329-6.881-43.454-17.986 C6.882,93.768,0,78.4,0,61.439C0,44.48,6.882,29.111,17.986,17.986C29.112,6.882,44.48,0,61.44,0L61.44,0z M73.452,39.152 c2.75-2.792,7.221-2.805,9.986-0.026c2.764,2.776,2.775,7.292,0.027,10.083L71.4,61.445l12.077,12.25 c2.728,2.77,2.689,7.256-0.081,10.021c-2.772,2.766-7.229,2.758-9.954-0.012L61.445,71.541L49.428,83.729 c-2.75,2.793-7.22,2.805-9.985,0.025c-2.763-2.775-2.776-7.291-0.026-10.082L51.48,61.435l-12.078-12.25 c-2.726-2.769-2.689-7.256,0.082-10.022c2.772-2.765,7.229-2.758,9.954,0.013L61.435,51.34L73.452,39.152L73.452,39.152z M96.899,25.98C87.826,16.907,75.29,11.296,61.44,11.296c-13.851,0-26.387,5.611-35.46,14.685 c-9.073,9.073-14.684,21.609-14.684,35.459s5.611,26.387,14.684,35.459c9.073,9.074,21.609,14.686,35.46,14.686 c13.85,0,26.386-5.611,35.459-14.686c9.073-9.072,14.684-21.609,14.684-35.459S105.973,35.054,96.899,25.98L96.899,25.98z"/></g></svg>`;
+        
+        const titles = ["Welcome to SyncSkill", "Introduce Yourself", "Detail Your Expertise", "Social Profiles", "Final Review & Submit"];
+        let currentStep = 0;
+
+        const navigate = (direction, targetStep = null) => {
+            if (direction === 'next' && !validateStep()) return;
+            if (targetStep !== null) { currentStep = targetStep; } 
+            else {
+                if (currentStep === formSteps.length - 1) { showTermsPopup(); return; }
+                currentStep = Math.max(0, Math.min(formSteps.length - 1, currentStep + 1));
+            }
+            updateUI();
+        };
+
+        const updateUI = () => {
+            if (currentStep === formSteps.length - 1) { populateReview(); }
+            formSteps.forEach((step, index) => step.classList.toggle("step-active", index === currentStep));
+            stepCards.forEach((card, index) => { card.classList.toggle('active', index === currentStep); card.classList.toggle('completed', index < currentStep); });
+            desktopFormTitle.textContent = titles[currentStep];
+            prevBtn.style.display = currentStep > 0 ? "flex" : "none";
+            nextBtn.innerHTML = currentStep === formSteps.length - 1 ? 'Proceed to Submit <span class="material-symbols-outlined">arrow_forward</span>' : 'Next <span class="material-symbols-outlined">arrow_forward</span>';
+            nextBtn.disabled = false;
+            
+            const firstInput = formSteps[currentStep].querySelector('input:not([type="hidden"])');
+            if (firstInput) firstInput.focus();
+        };
+
+        const populateReview = () => {
+            const formData = new FormData(form);
+            document.getElementById('review-name').textContent = formData.get('name') || '-';
+            document.getElementById('review-email').textContent = formData.get('email') || '-';
+            document.getElementById('review-mobile').textContent = formData.get('mobile') || '-';
+            document.getElementById('review-domain').textContent = formData.get('domain') || '-';
+            
+            document.getElementById('review-companies').textContent = formData.get('companies') || '-';
+            document.getElementById('review-teaching_exp').textContent = formData.get('teaching_exp') || '-';
+            
+            const yearsValue = formData.get('years_exp');
+            const teachingExpValue = formData.get('teaching_exp');
+            const yearsDisplayRow = document.getElementById('review-years-wrapper');
+            
+            if (teachingExpValue === 'Yes') {
+                yearsDisplayRow.style.display = 'flex';
+                document.getElementById('review-years_exp').textContent = yearsValue || '-';
+            } else {
+                yearsDisplayRow.style.display = 'none';
+            }
+            
+            document.getElementById('review-motivation').textContent = formData.get('motivation') || '-';
+            
+            document.getElementById('review-whatsapp').textContent = formData.get('whatsapp') || '-';
+            document.getElementById('review-linkedin').textContent = formData.get('linkedin') || '-';
+            document.getElementById('review-instagram').textContent = formData.get('instagram') || '-';
+            document.getElementById('review-x_id').textContent = formData.get('x_id') || '-';
+        };
+
+        const validationRules = { 
+            name: { minLength: 3, message: "Name must be at least 3 characters." }, 
+            email: { type: 'email', message: "Please enter a valid email address." }, 
+            mobile: { minLength: 10, message: "Please enter a valid mobile number." },
+            domain: { message: "Please select a domain." },
+            companies: { minLength: 2, message: "Please enter the companies you've worked at." }, 
+            teaching_exp: { message: "Please select an option." },
+            years_exp: { message: "Please enter your years of experience." },
+            motivation: { minLength: 10, message: "Please enter your motivation (min 10 chars)." }
+        };
+
+        const clearValidation = (input) => { 
+            const group = input.closest('.input-group'); 
+            input.classList.remove('valid', 'invalid'); 
+            
+            // clear dropdown specifically
+            if (input.type === 'hidden' && group.querySelector('.custom-dropdown')) {
+                const dropdown = group.querySelector('.custom-dropdown');
+                dropdown.classList.remove('valid', 'invalid');
+                const display = dropdown.querySelector('.dropdown-selected');
+                if (display) display.style.borderColor = '';
+            }
+
+            const successIcon = group.querySelector('.validation-icon.success');
+            const errorIcon = group.querySelector('.validation-icon.error');
+            const errorMsg = group.querySelector('.error-message');
+            if(successIcon) successIcon.innerHTML = ''; 
+            if(errorIcon) errorIcon.innerHTML = ''; 
+            if(errorMsg) errorMsg.textContent = ''; 
+        };
+
+        const validateField = (input) => { 
+            const group = input.closest('.input-group'); 
+            const successIcon = group.querySelector('.validation-icon.success'); 
+            const errorIcon = group.querySelector('.validation-icon.error'); 
+            const errorContainer = group.querySelector('.error-message'); 
+            let isValid = true; 
+            let errorMessage = ''; 
+            const rule = validationRules[input.id]; 
+            
+            if (input.required && !input.value.trim()) { 
+                isValid = false; 
+                errorMessage = rule?.message || "This field is required."; 
+            } else if (rule?.minLength && input.value.length < rule.minLength) { 
+                isValid = false; errorMessage = rule.message; 
+            } else if (rule?.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) { 
+                isValid = false; errorMessage = rule.message; 
+            } 
+            
+            // Special handling for the custom dropdown styling
+            if (input.type === 'hidden' && group.querySelector('.custom-dropdown')) {
+                const dropdownDisplay = group.querySelector('.dropdown-selected');
+                if(dropdownDisplay) {
+                    group.querySelector('.custom-dropdown').classList.toggle('valid', isValid);
+                    group.querySelector('.custom-dropdown').classList.toggle('invalid', !isValid);
+                    if (!isValid) dropdownDisplay.style.borderColor = 'var(--color-error)';
+                    else dropdownDisplay.style.borderColor = ''; 
+                }
+            } else {
+                input.classList.toggle('valid', isValid); 
+                input.classList.toggle('invalid', !isValid); 
+            }
+            
+            if(successIcon) successIcon.innerHTML = isValid ? tickSVG : ''; 
+            if(errorIcon) errorIcon.innerHTML = !isValid ? errorSVG : ''; 
+            if(errorContainer) errorContainer.textContent = errorMessage; 
+            return isValid; 
+        };
+
+        const validateStep = () => {
+            const requiredInputs = [...formSteps[currentStep].querySelectorAll('input[required]')];
+            if (requiredInputs.length === 0) return true;
+            return requiredInputs.map(validateField).every(val => val === true);
+        };
+        
+        form.addEventListener('blur', e => { if (e.target.hasAttribute('required')) validateField(e.target); }, true);
+        form.addEventListener('input', e => { if (e.target.hasAttribute('required')) clearValidation(e.target); });
+        form.addEventListener('keydown', e => { if (e.key === 'Enter' && !nextBtn.disabled) { e.preventDefault(); if (currentStep === formSteps.length - 1) { nextBtn.click(); return; } const inputs = [...formSteps[currentStep].querySelectorAll('input:not([type="hidden"])')]; const currentIndex = inputs.indexOf(document.activeElement); if (currentIndex === inputs.length - 1 || inputs.length === 0) { nextBtn.click(); } else if(currentIndex > -1) { inputs[currentIndex + 1].focus(); } } });
+        
+        const showStatusPopup = (type, onButtonClick) => { const popupConfig = { success: { icon: tickSVG, title: "Submission Successful", message: "Your details have been received. You will now be redirected.", buttonText: "Done" }, fail: { icon: errorSVG, title: "Submission Failed", message: "We couldn't process your request. Please try again.", buttonText: "Continue" } }; const config = popupConfig[type]; statusPopupCard.className = 'popup-card ' + type; popupIconContainer.innerHTML = config.icon; popupTitle.textContent = config.title; popupMessage.textContent = config.message; popupButton.textContent = config.buttonText; popupButton.onclick = onButtonClick; statusPopupOverlay.classList.add('visible'); };
+        
+        const showTermsPopup = () => { termsPopupOverlay.classList.add('visible'); };
+        const hideTermsPopup = () => { termsPopupOverlay.classList.remove('visible'); termsAgreeCheckbox.checked = false; termsSubmitBtn.disabled = true; };
+        termsCloseBtn.addEventListener('click', hideTermsPopup);
+        termsAgreeCheckbox.addEventListener('change', () => { termsSubmitBtn.disabled = !termsAgreeCheckbox.checked; });
+        
+        termsSubmitBtn.addEventListener('click', () => {
+            termsSubmitBtn.disabled = true;
+            termsSubmitBtn.innerHTML = 'Submitting... <span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">progress_activity</span>';
+            
+            // Replaced backend fetch call with simulated successful interaction
+            setTimeout(() => {
+                hideTermsPopup();
+                showStatusPopup('success', () => { window.location.reload(); });
+                termsSubmitBtn.innerHTML = 'Agree & Submit';
+            }, 1500);
+        });
+
+        nextBtn.addEventListener("click", () => navigate('next'));
+        prevBtn.addEventListener("click", () => navigate(null, currentStep - 1));
+        document.querySelector('.form-wrapper').addEventListener('click', e => { if (e.target.matches('.edit-btn, .edit-btn *')) { const button = e.target.closest('.edit-btn'); const targetStep = parseInt(button.dataset.targetStep, 10); navigate(null, targetStep); } });
+
+        updateUI();
+    });
+    </script>
+</body>
+</html>
